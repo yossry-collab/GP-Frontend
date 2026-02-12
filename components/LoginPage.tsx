@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, Gamepad2, ArrowRight, Sparkles } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Gamepad2, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 
@@ -30,11 +30,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neon-dark flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background orbs */}
-      <div className="absolute top-20 -left-32 w-96 h-96 bg-neon-purple/15 rounded-full blur-[120px] animate-orb" />
-      <div className="absolute bottom-20 -right-32 w-96 h-96 bg-neon-pink/10 rounded-full blur-[120px] animate-orb" style={{ animationDelay: '3s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-neon-cyan/5 rounded-full blur-[100px]" />
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0b0b11] flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-200/30 dark:bg-primary-600/[0.07] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-200/20 dark:bg-accent-500/[0.05] rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
 
       <motion.div
         className="w-full max-w-md relative z-10"
@@ -44,24 +43,21 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <div
-            className="inline-flex items-center gap-2.5 cursor-pointer mb-6"
-            onClick={() => router.push('/')}
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-purple to-neon-pink rounded-xl flex items-center justify-center">
+          <div className="inline-flex items-center gap-2.5 cursor-pointer mb-6" onClick={() => router.push('/')}>
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center">
               <Gamepad2 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-extrabold">GAME<span className="text-neon-gradient">VERSE</span></span>
+            <span className="text-xl font-extrabold text-gray-900 dark:text-white">GAME<span className="text-gradient">VERSE</span></span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h1>
           <p className="text-sm text-gray-500">Sign in to your account to continue</p>
         </div>
 
         {/* Card */}
-        <div className="glass-strong rounded-2xl p-8">
+        <div className="card p-8">
           {error && (
             <motion.div
-              className="mb-6 p-3 bg-neon-rose/10 border border-neon-rose/30 rounded-lg text-sm text-neon-rose"
+              className="mb-6 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg text-sm text-red-600 dark:text-red-400"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -71,14 +67,14 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-neon-dark border border-white/10 rounded-xl text-white text-sm outline-none focus:border-neon-purple/50 focus:shadow-glow-purple transition-all placeholder-gray-600"
+                  className="input pl-11"
                   placeholder="you@example.com"
                   required
                 />
@@ -86,21 +82,21 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-12 py-3 bg-neon-dark border border-white/10 rounded-xl text-white text-sm outline-none focus:border-neon-purple/50 focus:shadow-glow-purple transition-all placeholder-gray-600"
+                  className="input pl-11 pr-12"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -110,7 +106,7 @@ export default function LoginPage() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 btn-neon rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={{ scale: loading ? 1 : 1.01 }}
               whileTap={{ scale: loading ? 1 : 0.99 }}
             >
@@ -123,10 +119,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{' '}
-          <button onClick={() => router.push('/register')} className="text-neon-purple hover:text-neon-pink font-semibold transition-colors">
+          Don&apos;t have an account?{' '}
+          <button onClick={() => router.push('/register')} className="text-primary-600 dark:text-primary-400 hover:text-accent-500 font-semibold transition-colors">
             Create one
           </button>
         </p>

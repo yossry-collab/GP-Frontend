@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { CartProvider } from '@/lib/cart-context'
+import { ThemeProvider } from '@/lib/theme-context'
 
 export const metadata: Metadata = {
   title: 'GameVerse — Buy Games, Software & Gift Cards Instantly',
@@ -14,13 +15,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="bg-neon-dark overflow-x-hidden">
-        <AuthProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
-        </AuthProvider>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="overflow-x-hidden antialiased">
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

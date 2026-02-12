@@ -11,28 +11,23 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            // Store the attempted URL to redirect back after login
             sessionStorage.setItem('redirectAfterLogin', pathname)
-            router.push('/')
+            router.push('/login')
         }
     }, [isAuthenticated, isLoading, router, pathname])
 
-    // Show loading state while checking authentication
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gaming-dark via-[#1a1a2e] to-gaming-darker flex items-center justify-center">
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0b0b11] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-gaming-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-400">Loading...</p>
+                    <div className="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-sm text-gray-400">Loading...</p>
                 </div>
             </div>
         )
     }
 
-    // Only render children if authenticated
-    if (!isAuthenticated) {
-        return null
-    }
+    if (!isAuthenticated) return null
 
     return <>{children}</>
 }
