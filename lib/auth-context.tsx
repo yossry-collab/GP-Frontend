@@ -1,12 +1,13 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { authAPI } from '@/lib/api'
+import { authAPI, usersAPI } from '@/lib/api'
 
 interface User {
   _id: string
   username: string
   email: string
+  phonenumber?: string
   role: 'user' | 'admin'
 }
 
@@ -17,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   register: (username: string, email: string, password: string, phonenumber: string) => Promise<void>
   logout: () => void
+  updateProfile: (data: { username?: string; email?: string; phonenumber?: string; currentPassword?: string; newPassword?: string }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -76,6 +78,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateProfile = async (data: { username?: string; email?: string; phonenumber?: string; currentPassword?: string; newPassword?: string }) => {
+    try {
+      const response = await usersAPI.updateProfile(data)
+      const updatedUser = response.data.user
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Profile update failed')
+    }
+  }
+
   const logout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -92,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        updateProfile,
       }}
     >
       {children}

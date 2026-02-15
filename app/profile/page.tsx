@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { User, Mail, Phone, Shield, Package, ShoppingCart, Settings, Edit3, Save, X, Users, Upload, BarChart3, Clock, ChevronRight } from 'lucide-react'
+import { User, Mail, Phone, Shield, Package, ShoppingCart, Settings, Edit3, Save, X, Users, Upload, BarChart3, Clock, ChevronRight, Lock, Eye, EyeOff, Check } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { ordersAPI } from '@/lib/api'
@@ -18,12 +18,39 @@ interface Order {
 }
 
 export default function ProfilePage() {
-    const { user } = useAuth()
+    const { user, updateProfile } = useAuth()
     const router = useRouter()
     const [orders, setOrders] = useState<Order[]>([])
     const [loadingOrders, setLoadingOrders] = useState(true)
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'settings'>('overview')
     const isAdmin = user?.role === 'admin'
+
+    // Profile edit state
+    const [isEditing, setIsEditing] = useState(false)
+    const [saving, setSaving] = useState(false)
+    const [profileMsg, setProfileMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+    const [formData, setFormData] = useState({
+        username: user?.username || '',
+        email: user?.email || '',
+        phonenumber: user?.phonenumber || '',
+    })
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    })
+    const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false })
+    const [changingPassword, setChangingPassword] = useState(false)
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                username: user.username || '',
+                email: user.email || '',
+                phonenumber: user.phonenumber || '',
+            })
+        }
+    }, [user])
 
     useEffect(() => {
         fetchOrders()
@@ -31,12 +58,66 @@ export default function ProfilePage() {
 
     const fetchOrders = async () => {
         try {
-            const res = await ordersAPI.getMyOrders()
+            const res = await ordersAPI.getUserOrders()
             setOrders(Array.isArray(res.data) ? res.data : [])
         } catch {
         } finally {
             setLoadingOrders(false)
         }
+    }
+
+    const handleSaveProfile = async () => {
+        try {
+            setSaving(true)
+            setProfileMsg(null)
+            await updateProfile({
+                username: formData.username,
+                email: formData.email,
+                phonenumber: formData.phonenumber,
+            })
+            setProfileMsg({ type: 'success', text: 'Profile updated successfully!' })
+            setIsEditing(false)
+        } catch (err: any) {
+            setProfileMsg({ type: 'error', text: err.message || 'Failed to update profile' })
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleChangePassword = async () => {
+        try {
+            if (passwordData.newPassword !== passwordData.confirmPassword) {
+                setProfileMsg({ type: 'error', text: 'New passwords do not match' })
+                return
+            }
+            if (passwordData.newPassword.length < 6) {
+                setProfileMsg({ type: 'error', text: 'New password must be at least 6 characters' })
+                return
+            }
+            setSaving(true)
+            setProfileMsg(null)
+            await updateProfile({
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+            })
+            setProfileMsg({ type: 'success', text: 'Password changed successfully!' })
+            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+            setChangingPassword(false)
+        } catch (err: any) {
+            setProfileMsg({ type: 'error', text: err.message || 'Failed to change password' })
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleCancelEdit = () => {
+        setIsEditing(false)
+        setProfileMsg(null)
+        setFormData({
+            username: user?.username || '',
+            email: user?.email || '',
+            phonenumber: user?.phonenumber || '',
+        })
     }
 
     const getStatusColor = (status: string) => {
@@ -263,48 +344,222 @@ export default function ProfilePage() {
                     )}
 
                     {activeTab === 'settings' && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+                            {/* Success / Error Message */}
+                            {profileMsg && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`p-4 rounded-xl text-sm font-medium flex items-center gap-2 ${profileMsg.type === 'success'
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                                        : 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 border border-red-200 dark:border-red-500/30'
+                                        }`}
+                                >
+                                    {profileMsg.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                                    {profileMsg.text}
+                                </motion.div>
+                            )}
+
+                            {/* Profile Information */}
                             <div className="card p-6">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <Settings className="w-4 h-4 text-primary-500" /> Account Settings
-                                </h3>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <Settings className="w-4 h-4 text-primary-500" /> Profile Information
+                                    </h3>
+                                    {!isEditing ? (
+                                        <motion.button
+                                            onClick={() => { setIsEditing(true); setProfileMsg(null) }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                                        </motion.button>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <motion.button
+                                                onClick={handleCancelEdit}
+                                                className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl text-xs font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-all"
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <X className="w-3.5 h-3.5" /> Cancel
+                                            </motion.button>
+                                            <motion.button
+                                                onClick={handleSaveProfile}
+                                                disabled={saving}
+                                                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl text-xs font-bold shadow-glow-sm hover:shadow-glow transition-all disabled:opacity-50"
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {saving ? (
+                                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <Save className="w-3.5 h-3.5" />
+                                                )}
+                                                Save
+                                            </motion.button>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div className="space-y-5">
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Username</label>
-                                        <input
-                                            type="text"
-                                            defaultValue={user?.username || ''}
-                                            className="input"
-                                            disabled
-                                        />
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                value={formData.username}
+                                                onChange={e => setFormData({ ...formData, username: e.target.value })}
+                                                className="input pl-10"
+                                                disabled={!isEditing}
+                                                placeholder="Username"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Email</label>
-                                        <input
-                                            type="email"
-                                            defaultValue={user?.email || ''}
-                                            className="input"
-                                            disabled
-                                        />
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                className="input pl-10"
+                                                disabled={!isEditing}
+                                                placeholder="Email"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            defaultValue={user?.phonenumber || ''}
-                                            className="input"
-                                            disabled
-                                        />
-                                    </div>
-
-                                    <div className="border-t border-gray-200 dark:border-white/[0.06] pt-5">
-                                        <p className="text-xs text-gray-400 mb-4">Contact support to update your account information.</p>
-                                        <button className="btn-outline px-5 py-2.5 text-sm" disabled>
-                                            Update Profile (Coming Soon)
-                                        </button>
+                                        <div className="relative">
+                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="tel"
+                                                value={formData.phonenumber}
+                                                onChange={e => setFormData({ ...formData, phonenumber: e.target.value })}
+                                                className="input pl-10"
+                                                disabled={!isEditing}
+                                                placeholder="Phone Number"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Change Password */}
+                            <div className="card p-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <Lock className="w-4 h-4 text-primary-500" /> Change Password
+                                    </h3>
+                                    {!changingPassword && (
+                                        <motion.button
+                                            onClick={() => { setChangingPassword(true); setProfileMsg(null) }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Edit3 className="w-3.5 h-3.5" /> Change
+                                        </motion.button>
+                                    )}
+                                </div>
+
+                                {changingPassword ? (
+                                    <div className="space-y-5">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Current Password</label>
+                                            <div className="relative">
+                                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <input
+                                                    type={showPasswords.current ? 'text' : 'password'}
+                                                    value={passwordData.currentPassword}
+                                                    onChange={e => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                                    className="input pl-10 pr-10"
+                                                    placeholder="Enter current password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                >
+                                                    {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">New Password</label>
+                                            <div className="relative">
+                                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <input
+                                                    type={showPasswords.new ? 'text' : 'password'}
+                                                    value={passwordData.newPassword}
+                                                    onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                    className="input pl-10 pr-10"
+                                                    placeholder="Enter new password (min 6 chars)"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                >
+                                                    {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Confirm New Password</label>
+                                            <div className="relative">
+                                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <input
+                                                    type={showPasswords.confirm ? 'text' : 'password'}
+                                                    value={passwordData.confirmPassword}
+                                                    onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                    className="input pl-10 pr-10"
+                                                    placeholder="Confirm new password"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                >
+                                                    {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3 pt-2">
+                                            <motion.button
+                                                onClick={() => {
+                                                    setChangingPassword(false)
+                                                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+                                                    setProfileMsg(null)
+                                                }}
+                                                className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-all"
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <X className="w-3.5 h-3.5" /> Cancel
+                                            </motion.button>
+                                            <motion.button
+                                                onClick={handleChangePassword}
+                                                disabled={saving || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                                                className="flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl text-sm font-bold shadow-glow-sm hover:shadow-glow transition-all disabled:opacity-50"
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {saving ? (
+                                                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <Save className="w-3.5 h-3.5" />
+                                                )}
+                                                Update Password
+                                            </motion.button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-500">Click &quot;Change&quot; to update your password. You will need to provide your current password.</p>
+                                )}
                             </div>
                         </motion.div>
                     )}

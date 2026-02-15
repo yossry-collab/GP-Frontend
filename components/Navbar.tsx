@@ -14,6 +14,7 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isAdmin = user?.role === 'admin'
 
   const handleLogout = () => {
     logout()
@@ -22,7 +23,7 @@ export default function Navbar() {
 
   const navLinks = isAuthenticated
     ? [
-        { href: '/dashboard', label: 'Dashboard', icon: Home },
+        ...(isAdmin ? [{ href: '/dashboard', label: 'Dashboard', icon: Home }] : []),
         { href: '/store', label: 'Store', icon: Store },
         { href: '/cart', label: 'Cart', icon: ShoppingCart },
         { href: '/profile', label: 'Profile', icon: User },
@@ -39,7 +40,7 @@ export default function Navbar() {
         {/* Logo */}
         <div
           className="flex items-center gap-2.5 cursor-pointer select-none"
-          onClick={() => router.push(isAuthenticated ? '/dashboard' : '/')}
+          onClick={() => router.push(isAuthenticated ? (isAdmin ? '/dashboard' : '/store') : '/')}
         >
           <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm">
             <Gamepad2 className="w-5 h-5 text-white" />

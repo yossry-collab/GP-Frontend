@@ -47,6 +47,24 @@ export const authAPI = {
   },
 }
 
+export const usersAPI = {
+  updateProfile: async (data: { username?: string; email?: string; phonenumber?: string; currentPassword?: string; newPassword?: string }) => {
+    return apiClient.put('/api/users/profile', data)
+  },
+  getAll: async () => {
+    return apiClient.get('/api/users/get')
+  },
+  getById: async (id: string) => {
+    return apiClient.get(`/api/users/get/${id}`)
+  },
+  update: async (id: string, data: { username?: string; email?: string; phonenumber?: string }) => {
+    return apiClient.put(`/api/users/update/${id}`, data)
+  },
+  delete: async (id: string) => {
+    return apiClient.delete(`/api/users/delete/${id}`)
+  },
+}
+
 export const productsAPI = {
   getAll: async (category?: string) => {
     return apiClient.get('/api/products', { params: { category, limit: 100 } })
@@ -58,6 +76,30 @@ export const productsAPI = {
 
   search: async (query: string) => {
     return apiClient.get('/api/products/search', { params: { q: query } })
+  },
+
+  create: async (data: { name: string; description?: string; price: number; category: string; image?: string; stock?: number }) => {
+    return apiClient.post('/api/products', data)
+  },
+
+  update: async (id: string, data: { name?: string; description?: string; price?: number; category?: string; image?: string; stock?: number }) => {
+    return apiClient.put(`/api/products/${id}`, data)
+  },
+
+  delete: async (id: string) => {
+    return apiClient.delete(`/api/products/${id}`)
+  },
+
+  importCSV: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return apiClient.post('/api/import/import-csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  downloadSampleCSV: () => {
+    return `${API_BASE_URL}/api/import/sample-csv`
   },
 }
 
@@ -98,6 +140,42 @@ export const ordersAPI = {
 
   cancelOrder: async (id: string) => {
     return apiClient.put(`/api/orders/cancel/${id}`, {})
+  },
+
+  getAllOrders: async () => {
+    return apiClient.get('/api/orders/admin/all')
+  },
+}
+
+export const adminAPI = {
+  getStats: async () => {
+    return apiClient.get('/api/admin/stats')
+  },
+}
+
+export const codesWholesaleAPI = {
+  browseProducts: async () => {
+    return apiClient.get('/api/cw/products')
+  },
+
+  getProduct: async (id: string) => {
+    return apiClient.get(`/api/cw/products/${id}`)
+  },
+
+  syncProducts: async (options?: { clearExisting?: boolean; limit?: number }) => {
+    return apiClient.post('/api/cw/sync', options || {})
+  },
+
+  getPlatforms: async () => {
+    return apiClient.get('/api/cw/platforms')
+  },
+
+  getRegions: async () => {
+    return apiClient.get('/api/cw/regions')
+  },
+
+  getAccount: async () => {
+    return apiClient.get('/api/cw/account')
   },
 }
 

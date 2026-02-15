@@ -25,7 +25,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             setLoading(true)
             setError('')
             const response = await productsAPI.getById(params.id)
-            setProduct(response.data)
+            setProduct(response.data.product)
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to load product')
         } finally {
