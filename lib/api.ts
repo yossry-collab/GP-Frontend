@@ -160,6 +160,21 @@ export const ordersAPI = {
   },
 }
 
+// ═══════════════════════════════════════════════════════
+// ─── PAYMENT API (FLOUCI) ────────────────────────────
+// ═══════════════════════════════════════════════════════
+export const paymentAPI = {
+  // Initiate a Flouci payment session for an order
+  initiate: async (orderId: string) => {
+    return apiClient.post('/api/payment/initiate', { orderId })
+  },
+
+  // Verify a Flouci payment after redirect
+  verify: async (paymentId: string) => {
+    return apiClient.get(`/api/payment/verify/${paymentId}`)
+  },
+}
+
 export const adminAPI = {
   getStats: async () => {
     return apiClient.get('/api/admin/stats')
