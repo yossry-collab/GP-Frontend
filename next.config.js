@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path')
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -9,6 +11,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'us.norton.com' },
       { protocol: 'https', hostname: '**' },
     ],
+  },
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.resolve(__dirname)
+    return config
   },
 }
 
