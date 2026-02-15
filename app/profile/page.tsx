@@ -9,11 +9,21 @@ import { ordersAPI } from '@/lib/api'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Navbar from '@/components/Navbar'
 
+interface OrderItem {
+    productId: { _id: string; name: string; price: number; imageUrl?: string } | string
+    quantity: number
+    price: number
+    name: string
+    category?: string
+}
+
 interface Order {
     _id: string
-    products: { product: { name: string; price: number }; quantity: number }[]
-    totalAmount: number
+    items: OrderItem[]
+    totalPrice: number
+    totalItems: number
     status: string
+    paymentStatus: string
     createdAt: string
 }
 
@@ -59,7 +69,8 @@ export default function ProfilePage() {
     const fetchOrders = async () => {
         try {
             const res = await ordersAPI.getUserOrders()
-            setOrders(Array.isArray(res.data) ? res.data : [])
+            const data = res.data
+            setOrders(data.orders ? data.orders : Array.isArray(data) ? data : [])
         } catch {
         } finally {
             setLoadingOrders(false)
@@ -125,6 +136,7 @@ export default function ProfilePage() {
             case 'completed': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
             case 'pending': return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400'
             case 'cancelled': return 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400'
+            case 'failed': return 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400'
             default: return 'bg-gray-100 text-gray-600 dark:bg-gray-500/15 dark:text-gray-400'
         }
     }
@@ -275,7 +287,7 @@ export default function ProfilePage() {
                                         { label: 'Total Orders', value: orders.length.toString(), icon: ShoppingCart, color: 'bg-primary-100 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400' },
                                         { label: 'Completed', value: orders.filter(o => o.status === 'completed').length.toString(), icon: Package, color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400' },
                                         { label: 'Pending', value: orders.filter(o => o.status === 'pending').length.toString(), icon: Clock, color: 'bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400' },
-                                        { label: 'Total Spent', value: `$${orders.reduce((s, o) => s + (o.totalAmount || 0), 0).toFixed(0)}`, icon: BarChart3, color: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400' },
+                                        { label: 'Total Spent', value: `$${orders.reduce((s, o) => s + (o.totalPrice || 0), 0).toFixed(2)}`, icon: BarChart3, color: 'bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-400' },
                                     ].map(stat => (
                                         <div key={stat.label} className="bg-gray-50 dark:bg-[#0b0b11] border border-gray-200 dark:border-white/[0.06] rounded-xl p-4 text-center">
                                             <div className={`w-8 h-8 rounded-lg ${stat.color} mx-auto flex items-center justify-center mb-2`}>
@@ -327,12 +339,24 @@ export default function ProfilePage() {
                                                         <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase ${getStatusColor(order.status)}`}>
                                                             {order.status}
                                                         </span>
+                                                        <span className={`px-2 py-0.5 rounded-lg text-[10px] font-medium ${order.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-white/[0.04] dark:text-gray-400'}`}>
+                                                            {order.paymentStatus}
+                                                        </span>
                                                     </div>
-                                                    <span className="text-lg font-bold text-gradient">${order.totalAmount?.toFixed(2) || '0.00'}</span>
+                                                    <span className="text-lg font-bold text-gradient">${order.totalPrice?.toFixed(2) || '0.00'}</span>
+                                                </div>
+                                                {/* Order items */}
+                                                <div className="space-y-1 mb-2">
+                                                    {order.items?.map((item, i) => (
+                                                        <div key={i} className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                                            <span className="truncate max-w-[200px]">{item.name || (typeof item.productId === 'object' ? item.productId.name : 'Product')}</span>
+                                                            <span className="text-gray-400">x{item.quantity} &middot; ${(item.price * item.quantity).toFixed(2)}</span>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-xs text-gray-500">
-                                                        {order.products?.length || 0} item(s) &middot; {new Date(order.createdAt).toLocaleDateString()}
+                                                        {order.totalItems || order.items?.length || 0} item(s) &middot; {new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                                                     </p>
                                                 </div>
                                             </motion.div>

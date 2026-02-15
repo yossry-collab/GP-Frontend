@@ -1,12 +1,13 @@
 'use client'
 
-import { Gamepad2, Store, ShoppingCart, User, LogOut, Home, Menu, X } from 'lucide-react'
+import { Gamepad2, Store, ShoppingCart, User, LogOut, Home, Menu, X, Gift, Coins } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { useCart } from '@/lib/cart-context'
 import { useRouter, usePathname } from 'next/navigation'
 import ThemeToggle from './ThemeToggle'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { loyaltyAPI } from '@/lib/api'
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth()
@@ -14,7 +15,14 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [points, setPoints] = useState<number | null>(null)
   const isAdmin = user?.role === 'admin'
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loyaltyAPI.getBalance().then(res => setPoints(res.data.points)).catch(() => {})
+    }
+  }, [isAuthenticated])
 
   const handleLogout = () => {
     logout()
@@ -25,6 +33,7 @@ export default function Navbar() {
     ? [
         ...(isAdmin ? [{ href: '/dashboard', label: 'Dashboard', icon: Home }] : []),
         { href: '/store', label: 'Store', icon: Store },
+        { href: '/rewards', label: 'Rewards', icon: Gift },
         { href: '/cart', label: 'Cart', icon: ShoppingCart },
         { href: '/profile', label: 'Profile', icon: User },
       ]
@@ -33,9 +42,10 @@ export default function Navbar() {
       ]
 
   const isActive = (href: string) => pathname === href
+  const isLanding = pathname === '/'
 
   return (
-    <nav className="sticky top-0 z-50 glass">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${isLanding ? 'bg-black/20 backdrop-blur-md border-b border-white/[0.06]' : 'glass'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <div
@@ -45,8 +55,8 @@ export default function Navbar() {
           <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm">
             <Gamepad2 className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
-            GAME<span className="text-gradient">VERSE</span>
+          <span className={`text-lg font-extrabold tracking-tight ${isLanding ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+            GAME<span className="text-gradient">PLUG</span>
           </span>
         </div>
 
@@ -59,7 +69,9 @@ export default function Navbar() {
               className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive(link.href)
                   ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.04]'
+                  : isLanding
+                    ? 'text-white/70 hover:text-white hover:bg-white/10'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.04]'
               }`}
             >
               <link.icon className="w-4 h-4" />
@@ -76,6 +88,18 @@ export default function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
+
+          {/* Points badge */}
+          {isAuthenticated && points !== null && (
+            <button
+              onClick={() => router.push('/rewards')}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-500/20 hover:border-amber-400 transition-all"
+              title="Your points"
+            >
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-xs font-bold text-amber-700 dark:text-amber-400">{points.toLocaleString()}</span>
+            </button>
+          )}
 
           {isAuthenticated ? (
             <>
@@ -105,7 +129,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-2">
               <button
                 onClick={() => router.push('/login')}
-                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className={`px-4 py-2 text-sm font-medium transition-colors ${isLanding ? 'text-white/80 hover:text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
                 Sign In
               </button>

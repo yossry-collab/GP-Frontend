@@ -63,6 +63,12 @@ export const usersAPI = {
   delete: async (id: string) => {
     return apiClient.delete(`/api/users/delete/${id}`)
   },
+  ban: async (id: string, reason?: string) => {
+    return apiClient.put(`/api/users/ban/${id}`, { reason })
+  },
+  unban: async (id: string) => {
+    return apiClient.put(`/api/users/unban/${id}`)
+  },
 }
 
 export const productsAPI = {
@@ -126,8 +132,8 @@ export const cartAPI = {
 }
 
 export const ordersAPI = {
-  checkout: async () => {
-    return apiClient.post('/api/orders/checkout', {})
+  checkout: async (items: { productId: string; quantity: number; price: number; name: string; category?: string }[]) => {
+    return apiClient.post('/api/orders/checkout', { items })
   },
 
   getById: async (id: string) => {
@@ -135,15 +141,22 @@ export const ordersAPI = {
   },
 
   getUserOrders: async () => {
-    return apiClient.get('/api/orders/user-orders', {})
+    return apiClient.get('/api/orders')
   },
 
   cancelOrder: async (id: string) => {
-    return apiClient.put(`/api/orders/cancel/${id}`, {})
+    return apiClient.put(`/api/orders/${id}/cancel`, {})
   },
 
   getAllOrders: async () => {
     return apiClient.get('/api/orders/admin/all')
+  },
+
+  updateStatus: async (id: string, status: string, paymentStatus?: string) => {
+    return apiClient.put(`/api/orders/admin/${id}/status`, { status, paymentStatus })
+  },
+  overrideOrder: async (id: string, data: { items?: any[]; totalPrice?: number; totalItems?: number; status?: string; paymentStatus?: string }) => {
+    return apiClient.put(`/api/orders/admin/${id}/override`, data)
   },
 }
 
@@ -151,6 +164,63 @@ export const adminAPI = {
   getStats: async () => {
     return apiClient.get('/api/admin/stats')
   },
+  getAdvancedStats: async () => {
+    return apiClient.get('/api/admin/advanced-stats')
+  },
+  getMailingList: async () => {
+    return apiClient.get('/api/admin/mailing-list')
+  },
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── LOYALTY & REWARDS API ───────────────────────────
+// ═══════════════════════════════════════════════════════
+export const loyaltyAPI = {
+  // Points & Balance
+  getBalance: () => apiClient.get('/api/loyalty/balance'),
+  getHistory: (page = 1, limit = 20) => apiClient.get('/api/loyalty/history', { params: { page, limit } }),
+  dailyLogin: () => apiClient.post('/api/loyalty/daily-login'),
+  earnFromPurchase: (orderId: string, amount: number) => apiClient.post('/api/loyalty/earn-purchase', { orderId, amount }),
+  signupBonus: () => apiClient.post('/api/loyalty/signup-bonus'),
+
+  // Rewards
+  getRewards: () => apiClient.get('/api/loyalty/rewards'),
+  redeemReward: (rewardId: string) => apiClient.post(`/api/loyalty/rewards/${rewardId}/redeem`),
+  getRedemptions: () => apiClient.get('/api/loyalty/redemptions'),
+
+  // Quests
+  getQuests: () => apiClient.get('/api/loyalty/quests'),
+  completeQuest: (questId: string) => apiClient.post(`/api/loyalty/quests/${questId}/complete`),
+
+  // Packs
+  getPacks: () => apiClient.get('/api/loyalty/packs'),
+  openPack: (packId: string) => apiClient.post(`/api/loyalty/packs/${packId}/open`),
+  getPackHistory: () => apiClient.get('/api/loyalty/packs/history'),
+
+  // Membership
+  getMembership: () => apiClient.get('/api/loyalty/membership'),
+  upgradeTier: (tier: string) => apiClient.post('/api/loyalty/membership/upgrade', { tier }),
+
+  // Admin
+  adminStats: () => apiClient.get('/api/loyalty/admin/stats'),
+  adminSeed: () => apiClient.post('/api/loyalty/admin/seed'),
+  adminGrantPoints: (userId: string, amount: number, reason?: string) =>
+    apiClient.post('/api/loyalty/admin/grant-points', { userId, amount, reason }),
+  adminGetConfig: () => apiClient.get('/api/loyalty/admin/config'),
+  adminSetConfig: (key: string, value: any, description?: string) =>
+    apiClient.post('/api/loyalty/admin/config', { key, value, description }),
+  adminGetRewards: () => apiClient.get('/api/loyalty/admin/rewards'),
+  adminCreateReward: (data: any) => apiClient.post('/api/loyalty/admin/rewards', data),
+  adminUpdateReward: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/rewards/${id}`, data),
+  adminDeleteReward: (id: string) => apiClient.delete(`/api/loyalty/admin/rewards/${id}`),
+  adminGetQuests: () => apiClient.get('/api/loyalty/admin/quests'),
+  adminCreateQuest: (data: any) => apiClient.post('/api/loyalty/admin/quests', data),
+  adminUpdateQuest: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/quests/${id}`, data),
+  adminGetPacks: () => apiClient.get('/api/loyalty/admin/packs'),
+  adminCreatePack: (data: any) => apiClient.post('/api/loyalty/admin/packs', data),
+  adminUpdatePack: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/packs/${id}`, data),
+  adminGetMemberships: () => apiClient.get('/api/loyalty/admin/memberships'),
+  adminUpsertMembership: (data: any) => apiClient.post('/api/loyalty/admin/memberships', data),
 }
 
 export const codesWholesaleAPI = {

@@ -74,7 +74,7 @@ export default function DashboardLayout() {
                         </div>
                         <div>
                             <h1 className="text-xl font-bold bg-gradient-to-r from-gaming-accent via-gaming-pink to-gaming-orange bg-clip-text text-transparent">
-                                GAMEVERSE
+                                GAME PLUG
                             </h1>
                             <p className="text-xs text-gray-400">Enter the universe</p>
                         </div>

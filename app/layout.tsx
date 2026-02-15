@@ -5,7 +5,7 @@ import { CartProvider } from '@/lib/cart-context'
 import { ThemeProvider } from '@/lib/theme-context'
 
 export const metadata: Metadata = {
-  title: 'GameVerse — Buy Games, Software & Gift Cards Instantly',
+  title: 'Game Plug — Buy Games, Software & Gift Cards Instantly',
   description: 'Your premier digital marketplace for games, software keys, and gift cards. Instant delivery, secure checkout, best prices.',
 }
 

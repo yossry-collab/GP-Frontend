@@ -1,12 +1,35 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Gamepad2, Search, ShoppingCart, Zap, Shield, Key, Gift, Monitor, ChevronRight, Star, ArrowRight, Download, CreditCard, Globe, CheckCircle, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { productsAPI } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+
+const heroSlides = [
+  {
+    image: '/images/hero/cod-blackops.jpg',
+    title: 'Call of Duty: Black Ops',
+  },
+  {
+    image: '/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg',
+    title: 'Grand Theft Auto VI',
+  },
+  {
+    image: '/images/hero/rdr2.jpg',
+    title: 'Red Dead Redemption 2',
+  },
+  {
+    image: '/images/hero/ragnarok.jpg',
+    title: 'God of War Ragnarök',
+  },
+  {
+    image: '/images/hero/eldenRing.jpg',
+    title: 'Elden Ring',
+  },
+]
 
 interface Product {
   _id: string
@@ -22,6 +45,17 @@ export default function LandingPage() {
   const router = useRouter()
   const { isAuthenticated, isLoading } = useAuth()
   const [products, setProducts] = useState<Product[]>([])
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(1) // 1 = right, -1 = left
+
+  // Auto-advance hero slideshow
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlideDirection(1)
+      setCurrentSlide(prev => (prev + 1) % heroSlides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -69,87 +103,137 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ═══ HERO ═══ */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary-200/30 dark:bg-primary-600/[0.07] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent-200/20 dark:bg-accent-500/[0.05] rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4" />
+      <section className="relative min-h-[90vh] md:min-h-[85vh] overflow-hidden flex items-center">
+        {/* Background Image Slideshow */}
+        <div className="absolute inset-0">
+          <AnimatePresence initial={false} custom={slideDirection}>
+            <motion.div
+              key={currentSlide}
+              custom={slideDirection}
+              initial={{ x: slideDirection > 0 ? '100%' : '-100%', opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: slideDirection > 0 ? '-100%' : '100%', opacity: 0.5 }}
+              transition={{ duration: 0.8, ease: [0.42, 0, 0.2, 1] }}
+              className="absolute inset-0"
+            >
+              <img
+                src={heroSlides[currentSlide].image}
+                alt={heroSlides[currentSlide].title}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/35 to-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-50 dark:from-[#0b0b11] via-transparent to-transparent" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center gap-12 relative z-10">
-          <motion.div
-            className="flex-1 max-w-2xl"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+        {/* Slide indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          {heroSlides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => { setSlideDirection(idx > currentSlide ? 1 : -1); setCurrentSlide(idx) }}
+              className={`transition-all duration-300 rounded-full ${idx === currentSlide
+                ? 'w-8 h-2.5 bg-gradient-to-r from-primary-500 to-accent-500 shadow-glow-sm'
+                : 'w-2.5 h-2.5 bg-white/30 hover:bg-white/50'
+                }`}
+            />
+          ))}
+        </div>
+
+        {/* Hero Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full py-20 md:py-28">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-200 dark:border-primary-500/20 mb-6"
-              initial={{ opacity: 0, y: -10 }}
+              className="flex-1 max-w-2xl"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ duration: 0.6 }}
             >
-              <Sparkles className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-              <span className="text-sm font-medium text-primary-700 dark:text-primary-300">Trusted by 10M+ gamers worldwide</span>
+              <motion.div
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Sparkles className="w-4 h-4 text-primary-400" />
+                <span className="text-sm font-medium text-white/90">Trusted by 10M+ gamers worldwide</span>
+              </motion.div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-6 text-white">
+                Your Digital
+                <br />
+                <span className="text-gradient">Game Plug</span>
+              </h1>
+
+              <p className="text-lg text-gray-300 mb-8 max-w-lg leading-relaxed">
+                The premier marketplace for games, software keys, and gift cards. Instant delivery, secure checkout, and the best prices.
+              </p>
+
+              <div className="flex flex-wrap gap-3 mb-10">
+                <motion.button
+                  onClick={() => router.push('/register')}
+                  className="btn-primary px-7 py-3.5 text-sm flex items-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Browse Store <ArrowRight className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  onClick={() => router.push('/login')}
+                  className="px-7 py-3.5 text-sm font-semibold bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Sign In
+                </motion.button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 text-sm text-gray-300/80">
+                <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-primary-400" /> Instant Delivery</div>
+                <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary-400" /> Secure Checkout</div>
+                <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-primary-400" /> 150+ Countries</div>
+              </div>
             </motion.div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-6 text-gray-900 dark:text-white">
-              Your Digital
-              <br />
-              <span className="text-gradient">Game Store</span>
-            </h1>
-
-            <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-lg leading-relaxed">
-              The premier marketplace for games, software keys, and gift cards. Instant delivery, secure checkout, and the best prices.
-            </p>
-
-            <div className="flex flex-wrap gap-3 mb-10">
-              <motion.button
-                onClick={() => router.push('/register')}
-                className="btn-primary px-7 py-3.5 text-sm flex items-center gap-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Browse Store <ArrowRight className="w-4 h-4" />
-              </motion.button>
-              <motion.button
-                onClick={() => router.push('/login')}
-                className="btn-outline px-7 py-3.5 text-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Sign In
-              </motion.button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400 dark:text-gray-500">
-              <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-primary-500" /> Instant Delivery</div>
-              <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary-500" /> Secure Checkout</div>
-              <div className="flex items-center gap-2"><Globe className="w-4 h-4 text-primary-500" /> 150+ Countries</div>
-            </div>
-          </motion.div>
-
-          {/* Hero visual */}
-          <motion.div
-            className="relative w-72 h-72 lg:w-[400px] lg:h-[400px] flex-shrink-0"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-300/30 via-accent-300/20 to-blue-300/20 dark:from-primary-600/20 dark:via-accent-500/10 dark:to-blue-500/10 rounded-full blur-[80px]" />
-            <div className="relative w-full h-full rounded-3xl bg-white dark:bg-[#16161f] border border-gray-200 dark:border-white/[0.06] shadow-soft-lg dark:shadow-none flex items-center justify-center overflow-hidden">
-              <div className="text-[100px] animate-float">🎮</div>
-              <motion.div className="absolute top-6 right-6 w-12 h-12 bg-primary-50 dark:bg-primary-500/15 rounded-xl flex items-center justify-center border border-primary-200 dark:border-primary-500/20" animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 3 }}>
-                <Key className="w-6 h-6 text-primary-500" />
-              </motion.div>
-              <motion.div className="absolute bottom-10 left-6 w-12 h-12 bg-pink-50 dark:bg-pink-500/15 rounded-xl flex items-center justify-center border border-pink-200 dark:border-pink-500/20" animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 4 }}>
-                <Gift className="w-6 h-6 text-pink-500" />
-              </motion.div>
-              <motion.div className="absolute top-1/2 left-4 w-10 h-10 bg-blue-50 dark:bg-blue-500/15 rounded-lg flex items-center justify-center border border-blue-200 dark:border-blue-500/20" animate={{ y: [-8, 8, -8] }} transition={{ repeat: Infinity, duration: 3.5 }}>
-                <Download className="w-5 h-5 text-blue-500" />
-              </motion.div>
-            </div>
-          </motion.div>
+            {/* Current slide title card */}
+            <motion.div
+              className="hidden lg:block flex-shrink-0"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <div className="relative w-[340px] h-[200px] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.4 }}
+                    className="absolute inset-0"
+                  >
+                    <img
+                      src={heroSlides[currentSlide].image}
+                      alt={heroSlides[currentSlide].title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <p className="text-white font-bold text-sm">{heroSlides[currentSlide].title}</p>
+                      <p className="text-white/60 text-xs mt-0.5">Now Available</p>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+                {/* Slide counter */}
+                <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-black/40 backdrop-blur-sm text-[10px] font-bold text-white/70">
+                  {currentSlide + 1} / {heroSlides.length}
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -336,7 +420,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-accent-500 rounded-lg flex items-center justify-center">
                   <Gamepad2 className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-bold text-gray-900 dark:text-white">GAME<span className="text-gradient">VERSE</span></span>
+                <span className="font-bold text-gray-900 dark:text-white">GAME<span className="text-gradient"> PLUG</span></span>
               </div>
               <p className="text-xs text-gray-500 leading-relaxed">Your trusted digital marketplace for games, software, and gift cards.</p>
             </div>
@@ -358,7 +442,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-gray-200 dark:border-white/[0.06] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-gray-400">© 2026 GAMEVERSE. All rights reserved.</div>
+            <div className="text-xs text-gray-400">© 2026 GAME PLUG. All rights reserved.</div>
             <div className="flex items-center gap-3">
               {['Visa', 'MC', 'PayPal', 'Crypto'].map(p => (
                 <span key={p} className="px-2.5 py-1 bg-gray-100 dark:bg-white/[0.04] rounded text-[10px] text-gray-500 font-medium border border-gray-200 dark:border-white/[0.06]">{p}</span>

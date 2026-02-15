@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
-import { motion } from 'framer-motion'
-import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, Zap, Shield } from 'lucide-react'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft, Zap, Shield, Check, Loader2, Package } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
+import { ordersAPI, loyaltyAPI } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Navbar from '@/components/Navbar'
@@ -11,6 +12,9 @@ import Navbar from '@/components/Navbar'
 export default function CartPage() {
     const { items, itemCount, totalPrice, updateQuantity, removeItem, clearCart } = useCart()
     const router = useRouter()
+    const [checkingOut, setCheckingOut] = useState(false)
+    const [orderComplete, setOrderComplete] = useState<any>(null)
+    const [error, setError] = useState('')
 
     const handleUpdateQuantity = (productId: string, newQuantity: number) => {
         if (newQuantity < 1) {
@@ -18,6 +22,81 @@ export default function CartPage() {
         } else {
             updateQuantity(productId, newQuantity)
         }
+    }
+
+    const handleCheckout = async () => {
+        setCheckingOut(true)
+        setError('')
+        try {
+            // Send cart items to backend for checkout
+            const cartItems = items.map(item => ({
+                productId: item.product._id,
+                quantity: item.quantity,
+                price: item.product.price,
+                name: item.product.name,
+                category: item.product.category || '',
+            }))
+            const res = await ordersAPI.checkout(cartItems)
+            const order = res.data.order
+
+            // Award loyalty points for this purchase
+            try {
+                await loyaltyAPI.earnFromPurchase(order._id, order.totalPrice)
+            } catch { /* loyalty is optional, don't block checkout */ }
+
+            clearCart()
+            setOrderComplete(order)
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Checkout failed. Please try again.')
+        } finally {
+            setCheckingOut(false)
+        }
+    }
+
+    // Order success screen
+    if (orderComplete) {
+        return (
+            <ProtectedRoute>
+                <div className="min-h-screen bg-gray-50 dark:bg-[#0b0b11]">
+                    <Navbar />
+                    <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
+                        <motion.div className="text-center max-w-md px-6" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                            <motion.div
+                                className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-6"
+                                initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', bounce: 0.5, delay: 0.2 }}
+                            >
+                                <Check className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+                            </motion.div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Order Placed!</h2>
+                            <p className="text-gray-500 text-sm mb-2">Your order has been placed successfully.</p>
+                            <p className="text-xs text-gray-400 mb-1">Order ID: <span className="font-mono text-gray-600 dark:text-gray-300">{orderComplete._id}</span></p>
+                            <p className="text-xs text-gray-400 mb-6">{orderComplete.totalItems} items &middot; <span className="font-semibold text-gradient">${(orderComplete.totalPrice * 1.1).toFixed(2)}</span></p>
+
+                            <div className="bg-white dark:bg-[#1a1f2e] rounded-2xl border border-gray-200/80 dark:border-white/[0.06] p-4 mb-6 text-left">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Items</p>
+                                <div className="space-y-2">
+                                    {orderComplete.items.map((it: any, i: number) => (
+                                        <div key={i} className="flex justify-between text-sm">
+                                            <span className="text-gray-700 dark:text-gray-300 truncate flex-1">{it.name} <span className="text-gray-400">×{it.quantity}</span></span>
+                                            <span className="font-semibold text-gray-900 dark:text-white ml-4">${(it.price * it.quantity).toFixed(2)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 justify-center">
+                                <motion.button onClick={() => router.push('/store')} className="btn-primary px-6 py-3 text-sm" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                    Continue Shopping
+                                </motion.button>
+                                <motion.button onClick={() => router.push('/profile')} className="px-6 py-3 text-sm font-medium rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-all" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                    My Orders
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </ProtectedRoute>
+        )
     }
 
     if (items.length === 0) {
@@ -160,12 +239,18 @@ export default function CartPage() {
                                 </div>
 
                                 <motion.button
-                                    className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2"
-                                    whileHover={{ scale: 1.01 }}
-                                    whileTap={{ scale: 0.99 }}
+                                    className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                                    whileHover={{ scale: checkingOut ? 1 : 1.01 }}
+                                    whileTap={{ scale: checkingOut ? 1 : 0.99 }}
+                                    onClick={handleCheckout}
+                                    disabled={checkingOut}
                                 >
-                                    <ShoppingCart className="w-4 h-4" /> Proceed to Checkout
+                                    {checkingOut ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : <><ShoppingCart className="w-4 h-4" /> Proceed to Checkout</>}
                                 </motion.button>
+
+                                {error && (
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-xs text-center mt-3">{error}</motion.p>
+                                )}
 
                                 <div className="flex items-center justify-center gap-4 mt-4 text-[10px] text-gray-400">
                                     <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> SSL Encrypted</span>

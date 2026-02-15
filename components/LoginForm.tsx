@@ -75,7 +75,7 @@ export default function LoginForm() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Access your GameVerse account and start playing
+            Access your Game Plug account and start playing
           </motion.p>
         </div>
 
@@ -211,7 +211,7 @@ export default function LoginForm() {
               </>
             ) : (
               <>
-                <span>Enter GameVerse</span>
+                <span>Enter Game Plug</span>
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

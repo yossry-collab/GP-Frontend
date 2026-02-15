@@ -66,7 +66,7 @@ export default function RegisterForm() {
                         </div>
                     </div>
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-gaming-accent via-gaming-pink to-gaming-orange bg-clip-text text-transparent mb-2">
-                        Welcome to GameVerse!
+                        Welcome to Game Plug!
                     </h2>
                     <p className="text-gray-400 mb-4">Account created successfully. Redirecting to login...</p>
                 </div>
@@ -102,7 +102,7 @@ export default function RegisterForm() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        Join GameVerse and start your gaming journey
+                        Join Game Plug and start your gaming journey
                     </motion.p>
                 </div>
 
@@ -254,7 +254,7 @@ export default function RegisterForm() {
                             </>
                         ) : (
                             <>
-                                <span>Join GameVerse</span>
+                                <span>Join Game Plug</span>
                                 <ArrowRight className="w-5 h-5" />
                             </>
                         )}

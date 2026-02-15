@@ -35,7 +35,7 @@ const Hyperspeed = () => {
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
                 container.appendChild(renderer.domElement)
 
-                // Pink/Magenta colors matching GameVerse theme
+                // Pink/Magenta colors matching Game Plug theme
                 const colors = {
                     leftCars: [0xec4899, 0xf43f5e, 0xff006e],
                     rightCars: [0x8b5cf6, 0x6366f1, 0x3b82f6],
