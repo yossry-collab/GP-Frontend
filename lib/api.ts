@@ -38,6 +38,14 @@ export const authAPI = {
     return apiClient.post('/api/users/register', data)
   },
 
+  verifyEmailOtp: async (data: { email: string; otp: string }) => {
+    return apiClient.post('/api/users/verify-email-otp', data)
+  },
+
+  resendEmailOtp: async (data: { email: string }) => {
+    return apiClient.post('/api/users/resend-email-otp', data)
+  },
+
   login: async (data: { email: string; password: string }) => {
     return apiClient.post('/api/users/login', data)
   },
