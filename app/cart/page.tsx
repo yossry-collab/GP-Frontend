@@ -10,10 +10,8 @@ import {
   ArrowLeft,
   Zap,
   Shield,
-  Loader2,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
-import { ordersAPI, paymentAPI } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -28,7 +26,6 @@ export default function CartPage() {
     clearCart,
   } = useCart();
   const router = useRouter();
-  const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState("");
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
@@ -39,33 +36,8 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
-    setCheckingOut(true);
-    setError("");
-    try {
-      // 1. Create the order in backend (no stock deduction yet)
-      const cartItems = items.map((item) => ({
-        productId: item.product._id,
-        quantity: item.quantity,
-        price: item.product.price,
-        name: item.product.name,
-        category: item.product.category || "",
-      }));
-      const orderRes = await ordersAPI.checkout(cartItems);
-      const order = orderRes.data.order;
-
-      // 2. Initiate Flouci payment session
-      const paymentRes = await paymentAPI.initiate(order._id);
-      const { paymentLink } = paymentRes.data;
-
-      // 3. Redirect to Flouci hosted payment page
-      window.location.href = paymentLink;
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Checkout failed. Please try again.",
-      );
-      setCheckingOut(false);
-    }
+  const handleCheckout = () => {
+    router.push("/payment/checkout");
   };
 
   if (items.length === 0) {
@@ -263,21 +235,12 @@ export default function CartPage() {
                 </div>
 
                 <motion.button
-                  className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                  whileHover={{ scale: checkingOut ? 1 : 1.01 }}
-                  whileTap={{ scale: checkingOut ? 1 : 0.99 }}
+                  className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   onClick={handleCheckout}
-                  disabled={checkingOut}
                 >
-                  {checkingOut ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Processing...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" /> Proceed to Checkout
-                    </>
-                  )}
+                  <ShoppingCart className="w-4 h-4" /> Proceed to Checkout
                 </motion.button>
 
                 {error && (
