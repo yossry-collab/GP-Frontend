@@ -23,6 +23,7 @@ import { productsAPI } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
+import SafeImage from "@/components/SafeImage";
 
 export default function ProductDetailPage({
   params,
@@ -129,7 +130,7 @@ export default function ProductDetailPage({
               animate={{ opacity: 1, x: 0 }}
             >
               {product.image ? (
-                <img
+                <SafeImage
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover min-h-[300px] max-h-[500px]"

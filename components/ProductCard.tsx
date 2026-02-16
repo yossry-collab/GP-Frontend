@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Zap, Tag, Monitor } from "lucide-react";
 import { Product, useCart } from "@/lib/cart-context";
 import { useRouter } from "next/navigation";
+import SafeImage from "@/components/SafeImage";
 
 interface ProductCardProps {
   product: Product;
@@ -46,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Image */}
       <div className="relative h-48 bg-gray-100 dark:bg-white/[0.03] overflow-hidden">
         {product.image ? (
-          <img
+          <SafeImage
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

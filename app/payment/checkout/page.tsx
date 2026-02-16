@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
+import SafeImage from "@/components/SafeImage";
 
 interface BillingForm {
   fullName: string;
@@ -367,7 +368,7 @@ export default function CheckoutPage() {
                       <div key={i} className="flex gap-3">
                         <div className="w-12 h-12 bg-gray-100 dark:bg-white/[0.03] rounded-lg flex-shrink-0 overflow-hidden">
                           {item.product.image ? (
-                            <img
+                            <SafeImage
                               src={item.product.image}
                               alt={item.product.name}
                               className="w-full h-full object-cover"

@@ -13,6 +13,7 @@ import { useAuth } from "./auth-context";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Check, ArrowRight, Zap, Package } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
 
 export interface Product {
   _id: string;
@@ -99,7 +100,7 @@ function CartToast({
             <div className="flex gap-3 p-4">
               <div className="w-16 h-16 rounded-xl bg-gray-100 dark:bg-white/[0.04] overflow-hidden shrink-0">
                 {item.product.image ? (
-                  <img
+                  <SafeImage
                     src={item.product.image}
                     alt={item.product.name}
                     className="w-full h-full object-cover"

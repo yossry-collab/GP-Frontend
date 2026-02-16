@@ -15,6 +15,7 @@ import { useCart } from "@/lib/cart-context";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
+import SafeImage from "@/components/SafeImage";
 
 export default function CartPage() {
   const {
@@ -117,7 +118,7 @@ export default function CartPage() {
                   <div className="flex gap-5">
                     <div className="w-20 h-20 bg-gray-100 dark:bg-white/[0.03] rounded-xl overflow-hidden flex-shrink-0">
                       {item.product.image ? (
-                        <img
+                        <SafeImage
                           src={item.product.image}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
