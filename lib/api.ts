@@ -175,6 +175,24 @@ export const paymentAPI = {
   },
 }
 
+// ═══════════════════════════════════════════════════════
+// ─── NOTIFICATIONS API ───────────────────────────────
+// ═══════════════════════════════════════════════════════
+export const notificationsAPI = {
+  getAll: (page = 1, limit = 30) =>
+    apiClient.get('/api/notifications', { params: { page, limit } }),
+  getUnreadCount: () =>
+    apiClient.get('/api/notifications/unread-count'),
+  markAsRead: (id: string) =>
+    apiClient.put(`/api/notifications/${id}/read`),
+  markAllAsRead: () =>
+    apiClient.put('/api/notifications/read-all'),
+  delete: (id: string) =>
+    apiClient.delete(`/api/notifications/${id}`),
+  clearAll: () =>
+    apiClient.delete('/api/notifications/clear'),
+}
+
 export const adminAPI = {
   getStats: async () => {
     return apiClient.get('/api/admin/stats')
