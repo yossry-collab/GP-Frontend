@@ -58,7 +58,7 @@ export default function RegisterPage() {
       );
       setSuccess("Registration successful! Redirecting...");
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/profile");
       }, 1000);
     } catch (err: any) {
       setError(err.message || "Registration failed. Please try again.");

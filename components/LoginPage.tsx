@@ -21,8 +21,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
+      const storedRedirectUrl = sessionStorage.getItem("redirectAfterLogin");
       const redirectUrl =
-        sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
+        storedRedirectUrl === "/dashboard"
+          ? "/profile"
+          : storedRedirectUrl || "/profile";
       sessionStorage.removeItem("redirectAfterLogin");
       router.push(redirectUrl);
     } catch (err: any) {

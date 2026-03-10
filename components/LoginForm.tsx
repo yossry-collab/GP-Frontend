@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Eye, EyeOff, ArrowRight, Loader, Lock, User } from 'lucide-react'
-import SocialButtons from './SocialButtons'
-import { useAuth } from '@/lib/auth-context'
-import { useRouter } from 'next/navigation'
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, ArrowRight, Loader, Lock, User } from "lucide-react";
+import SocialButtons from "./SocialButtons";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
-  const { login } = useAuth()
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [focused, setFocused] = useState<'email' | 'password' | null>(null)
+  const { login } = useAuth();
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [focused, setFocused] = useState<"email" | "password" | null>(null);
 
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 20 },
@@ -23,29 +23,33 @@ export default function LoginForm() {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
+      transition: { duration: 0.6, ease: "easeOut" },
     },
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     try {
-      await login(email, password)
+      await login(email, password);
 
       // Check if there's a redirect URL stored
-      const redirectUrl = sessionStorage.getItem('redirectAfterLogin') || '/dashboard'
-      sessionStorage.removeItem('redirectAfterLogin')
+      const storedRedirectUrl = sessionStorage.getItem("redirectAfterLogin");
+      const redirectUrl =
+        storedRedirectUrl === "/dashboard"
+          ? "/profile"
+          : storedRedirectUrl || "/profile";
+      sessionStorage.removeItem("redirectAfterLogin");
 
-      router.push(redirectUrl)
+      router.push(redirectUrl);
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.')
+      setError(err.message || "Login failed. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <motion.div
@@ -57,7 +61,10 @@ export default function LoginForm() {
       {/* Glass Card - Enhanced */}
       <motion.div
         className="backdrop-blur-2xl bg-gradient-to-br from-white/[0.12] to-white/[0.06] rounded-2xl border border-white/30 shadow-[0_8px_32px_0_rgba(255,51,51,0.2)] p-8 hover:border-gaming-accent/50 transition-all duration-500 relative overflow-hidden"
-        whileHover={{ boxShadow: '0 0 60px rgba(255, 51, 51, 0.3), 0 0 100px rgba(255, 51, 51, 0.1)' }}
+        whileHover={{
+          boxShadow:
+            "0 0 60px rgba(255, 51, 51, 0.3), 0 0 100px rgba(255, 51, 51, 0.1)",
+        }}
       >
         {/* Header */}
         <div className="mb-8 space-y-2">
@@ -109,9 +116,10 @@ export default function LoginForm() {
             <motion.div
               className="relative"
               animate={{
-                boxShadow: focused === 'email'
-                  ? '0 0 20px rgba(255, 51, 51, 0.3)'
-                  : '0 0 0px rgba(0, 0, 0, 0)',
+                boxShadow:
+                  focused === "email"
+                    ? "0 0 20px rgba(255, 51, 51, 0.3)"
+                    : "0 0 0px rgba(0, 0, 0, 0)",
               }}
               transition={{ duration: 0.2 }}
             >
@@ -119,7 +127,7 @@ export default function LoginForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocused('email')}
+                onFocus={() => setFocused("email")}
                 onBlur={() => setFocused(null)}
                 placeholder="player@gameplug.com"
                 required
@@ -146,18 +154,19 @@ export default function LoginForm() {
             </label>
             <div className="relative">
               <motion.input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setFocused('password')}
+                onFocus={() => setFocused("password")}
                 onBlur={() => setFocused(null)}
                 placeholder="••••••••"
                 required
                 className="w-full px-4 py-3 bg-white/8 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gaming-accent focus:bg-white/10 focus:ring-2 focus:ring-gaming-accent/30 transition-all duration-300 pr-12"
                 animate={{
-                  boxShadow: focused === 'password'
-                    ? '0 0 20px rgba(255, 51, 51, 0.3)'
-                    : '0 0 0px rgba(0, 0, 0, 0)',
+                  boxShadow:
+                    focused === "password"
+                      ? "0 0 20px rgba(255, 51, 51, 0.3)"
+                      : "0 0 0px rgba(0, 0, 0, 0)",
                 }}
                 transition={{ duration: 0.2 }}
               />
@@ -198,7 +207,10 @@ export default function LoginForm() {
             type="submit"
             disabled={isLoading}
             className="w-full py-3.5 px-4 bg-gradient-to-r from-gaming-accent via-gaming-pink to-gaming-orange rounded-lg font-bold text-white shadow-[0_4px_20px_rgba(255,51,51,0.3)] hover:shadow-[0_6px_30px_rgba(255,51,51,0.5)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 mt-6 relative overflow-hidden group"
-            whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(255, 51, 51, 0.4)' }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 30px rgba(255, 51, 51, 0.4)",
+            }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -251,7 +263,7 @@ export default function LoginForm() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <motion.a
             href="/register"
             className="text-gaming-accent hover:text-gaming-orange font-bold transition-colors"
@@ -273,5 +285,5 @@ export default function LoginForm() {
         </motion.div>
       </motion.div>
     </motion.div>
-  )
+  );
 }
