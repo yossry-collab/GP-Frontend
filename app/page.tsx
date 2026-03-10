@@ -30,22 +30,32 @@ const heroSlides = [
   {
     image: "/images/hero/cod-blackops.jpg",
     title: "Call of Duty: Black Ops",
+    heroPosition: "center 22%",
+    cardPosition: "center 24%",
   },
   {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
     title: "Grand Theft Auto VI",
+    heroPosition: "center 18%",
+    cardPosition: "center 20%",
   },
   {
     image: "/images/hero/rdr2.jpg",
     title: "Red Dead Redemption 2",
+    heroPosition: "center 16%",
+    cardPosition: "center 18%",
   },
   {
     image: "/images/hero/god-of-war-valhalla-3840x2160-13667.jpg",
     title: "God of War Ragnarök",
+    heroPosition: "center 12%",
+    cardPosition: "center 14%",
   },
   {
     image: "/images/hero/apex-legends-breach-3840x2160-25673.jpg",
     title: "Apex Legends",
+    heroPosition: "center 14%",
+    cardPosition: "center 16%",
   },
 ];
 
@@ -172,7 +182,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[96vh] md:min-h-[90vh] overflow-hidden flex items-center">
+      <section className="relative min-h-[96vh] md:min-h-[94vh] lg:min-h-[98vh] overflow-hidden flex items-center">
         {/* Background Image Slideshow */}
         <div className="absolute inset-0">
           <AnimatePresence initial={false} custom={slideDirection}>
@@ -191,7 +201,10 @@ export default function LandingPage() {
               <img
                 src={heroSlides[currentSlide].image}
                 alt={heroSlides[currentSlide].title}
-                className="w-full h-full object-cover object-[center_top] md:object-[center_18%]"
+                className="w-full h-full object-cover"
+                style={{
+                  objectPosition: heroSlides[currentSlide].heroPosition,
+                }}
               />
             </motion.div>
           </AnimatePresence>
@@ -220,7 +233,7 @@ export default function LandingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full pt-28 pb-20 md:pt-32 md:pb-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-40">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div
               className="flex-1 max-w-2xl"
@@ -304,7 +317,10 @@ export default function LandingPage() {
                     <img
                       src={heroSlides[currentSlide].image}
                       alt={heroSlides[currentSlide].title}
-                      className="w-full h-full object-cover object-[center_top]"
+                      className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: heroSlides[currentSlide].cardPosition,
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
                     <div className="absolute bottom-4 left-4 right-4">

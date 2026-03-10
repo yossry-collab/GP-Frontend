@@ -43,30 +43,40 @@ const heroSlides = [
     title: "Call of Duty: Black Ops",
     subtitle: "The ultimate tactical shooter",
     tag: "Best Seller",
+    heroPosition: "center 22%",
+    cardPosition: "center 24%",
   },
   {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
     title: "Grand Theft Auto VI",
     subtitle: "The most anticipated game of the decade",
     tag: "Pre-Order",
+    heroPosition: "center 18%",
+    cardPosition: "center 20%",
   },
   {
     image: "/images/hero/rdr2.jpg",
     title: "Red Dead Redemption 2",
     subtitle: "Epic tale of life in America's heartland",
     tag: "Top Rated",
+    heroPosition: "center 16%",
+    cardPosition: "center 18%",
   },
   {
     image: "/images/hero/god-of-war-valhalla-3840x2160-13667.jpg",
     title: "God of War Ragnarök",
     subtitle: "Embark on an epic Norse mythology adventure",
     tag: "Award Winner",
+    heroPosition: "center 12%",
+    cardPosition: "center 14%",
   },
   {
     image: "/images/hero/apex-legends-breach-3840x2160-25673.jpg",
     title: "Apex Legends",
     subtitle: "Squad up for high-speed battle royale action",
     tag: "Free to Play",
+    heroPosition: "center 14%",
+    cardPosition: "center 16%",
   },
 ];
 
@@ -248,7 +258,7 @@ export default function StorePage() {
         {/* ═══════════════════════════════════════════════════════ */}
         {/* ─── HERO BANNER WITH SLIDESHOW ────────────────────── */}
         {/* ═══════════════════════════════════════════════════════ */}
-        <section className="relative h-[62vh] min-h-[430px] max-h-[620px] overflow-hidden">
+        <section className="relative h-[62vh] min-h-[430px] md:h-[70vh] md:min-h-[520px] md:max-h-[720px] overflow-hidden">
           {/* Background slideshow */}
           <div className="absolute inset-0">
             <AnimatePresence initial={false} custom={slideDirection}>
@@ -270,7 +280,10 @@ export default function StorePage() {
                 <img
                   src={heroSlides[currentSlide].image}
                   alt={heroSlides[currentSlide].title}
-                  className="w-full h-full object-cover object-[center_top] md:object-[center_18%]"
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: heroSlides[currentSlide].heroPosition,
+                  }}
                 />
               </motion.div>
             </AnimatePresence>
@@ -279,7 +292,7 @@ export default function StorePage() {
           </div>
 
           {/* Hero content */}
-          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center pt-14 md:pt-16">
+          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center pt-14 md:pt-20 lg:pt-24">
             <div className="flex flex-col lg:flex-row items-center gap-8 w-full">
               <motion.div
                 className="flex-1 max-w-xl"
@@ -344,7 +357,10 @@ export default function StorePage() {
                       <img
                         src={heroSlides[currentSlide].image}
                         alt={heroSlides[currentSlide].title}
-                        className="w-full h-full object-cover object-[center_top]"
+                        className="w-full h-full object-cover"
+                        style={{
+                          objectPosition: heroSlides[currentSlide].cardPosition,
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
                       <div className="absolute top-3 left-3">
