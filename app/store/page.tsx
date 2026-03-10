@@ -248,7 +248,7 @@ export default function StorePage() {
         {/* ═══════════════════════════════════════════════════════ */}
         {/* ─── HERO BANNER WITH SLIDESHOW ────────────────────── */}
         {/* ═══════════════════════════════════════════════════════ */}
-        <section className="relative h-[55vh] min-h-[380px] max-h-[520px] overflow-hidden">
+        <section className="relative h-[62vh] min-h-[430px] max-h-[620px] overflow-hidden">
           {/* Background slideshow */}
           <div className="absolute inset-0">
             <AnimatePresence initial={false} custom={slideDirection}>
@@ -270,7 +270,7 @@ export default function StorePage() {
                 <img
                   src={heroSlides[currentSlide].image}
                   alt={heroSlides[currentSlide].title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-[center_top] md:object-[center_18%]"
                 />
               </motion.div>
             </AnimatePresence>
@@ -279,7 +279,7 @@ export default function StorePage() {
           </div>
 
           {/* Hero content */}
-          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center">
+          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center pt-14 md:pt-16">
             <div className="flex flex-col lg:flex-row items-center gap-8 w-full">
               <motion.div
                 className="flex-1 max-w-xl"
@@ -344,7 +344,7 @@ export default function StorePage() {
                       <img
                         src={heroSlides[currentSlide].image}
                         alt={heroSlides[currentSlide].title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-[center_top]"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
                       <div className="absolute top-3 left-3">

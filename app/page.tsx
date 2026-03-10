@@ -172,7 +172,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[90vh] md:min-h-[85vh] overflow-hidden flex items-center">
+      <section className="relative min-h-[96vh] md:min-h-[90vh] overflow-hidden flex items-center">
         {/* Background Image Slideshow */}
         <div className="absolute inset-0">
           <AnimatePresence initial={false} custom={slideDirection}>
@@ -191,7 +191,7 @@ export default function LandingPage() {
               <img
                 src={heroSlides[currentSlide].image}
                 alt={heroSlides[currentSlide].title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-[center_top] md:object-[center_18%]"
               />
             </motion.div>
           </AnimatePresence>
@@ -220,7 +220,7 @@ export default function LandingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full pt-28 pb-20 md:pt-32 md:pb-28">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div
               className="flex-1 max-w-2xl"
@@ -304,7 +304,7 @@ export default function LandingPage() {
                     <img
                       src={heroSlides[currentSlide].image}
                       alt={heroSlides[currentSlide].title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-[center_top]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
                     <div className="absolute bottom-4 left-4 right-4">
