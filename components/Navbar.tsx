@@ -6,11 +6,8 @@ import {
   ShoppingCart,
   User,
   LogOut,
-  Home,
   Menu,
   X,
-  Gift,
-  Coins,
   Bell,
   Check,
   CheckCheck,
@@ -27,7 +24,7 @@ import { useRouter, usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { loyaltyAPI, notificationsAPI } from "@/lib/api";
+import { notificationsAPI } from "@/lib/api";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -35,8 +32,6 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [points, setPoints] = useState<number | null>(null);
-  const isAdmin = user?.role === "admin";
 
   // Notifications state
   const [notifOpen, setNotifOpen] = useState(false);
@@ -58,10 +53,6 @@ export default function Navbar() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loyaltyAPI
-        .getBalance()
-        .then((res) => setPoints(res.data.points))
-        .catch(() => {});
       fetchNotifications();
       const interval = setInterval(fetchNotifications, 30000); // poll every 30s
       return () => clearInterval(interval);
@@ -143,11 +134,7 @@ export default function Navbar() {
 
   const navLinks = isAuthenticated
     ? [
-        ...(isAdmin
-          ? [{ href: "/dashboard", label: "Dashboard", icon: Home }]
-          : []),
         { href: "/store", label: "Store", icon: Store },
-        { href: "/rewards", label: "Rewards", icon: Gift },
         { href: "/cart", label: "Cart", icon: ShoppingCart },
         { href: "/profile", label: "Profile", icon: User },
       ]
@@ -165,9 +152,7 @@ export default function Navbar() {
         <div
           className="flex items-center gap-2.5 cursor-pointer select-none"
           onClick={() =>
-            router.push(
-              isAuthenticated ? (isAdmin ? "/dashboard" : "/store") : "/",
-            )
+            router.push(isAuthenticated ? "/store" : "/")
           }
         >
           <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm">
@@ -208,20 +193,6 @@ export default function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
-
-          {/* Points badge */}
-          {isAuthenticated && points !== null && (
-            <button
-              onClick={() => router.push("/rewards")}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-500/20 hover:border-amber-400 transition-all"
-              title="Your points"
-            >
-              <Coins className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                {points.toLocaleString()}
-              </span>
-            </button>
-          )}
 
           {isAuthenticated ? (
             <>

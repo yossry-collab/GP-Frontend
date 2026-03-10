@@ -12,6 +12,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { ordersAPI } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -28,6 +29,7 @@ export default function CartPage() {
   } = useCart();
   const router = useRouter();
   const [error, setError] = useState("");
+  const [placingOrder, setPlacingOrder] = useState(false);
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -37,8 +39,30 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = () => {
-    router.push("/payment/checkout");
+  const handleCheckout = async () => {
+    try {
+      setError("");
+      setPlacingOrder(true);
+
+      const cartItems = items.map((item) => ({
+        productId: item.product._id,
+        quantity: item.quantity,
+        price: item.product.price,
+        name: item.product.name,
+        category: item.product.category || "",
+      }));
+
+      await ordersAPI.checkout(cartItems);
+      clearCart();
+      router.push("/profile");
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "Failed to place order. Please try again.",
+      );
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   if (items.length === 0) {
@@ -240,8 +264,10 @@ export default function CartPage() {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={handleCheckout}
+                  disabled={placingOrder}
                 >
-                  <ShoppingCart className="w-4 h-4" /> Proceed to Checkout
+                  <ShoppingCart className="w-4 h-4" />
+                  {placingOrder ? "Placing Order..." : "Place Order"}
                 </motion.button>
 
                 {error && (

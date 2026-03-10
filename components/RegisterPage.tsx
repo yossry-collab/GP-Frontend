@@ -11,13 +11,12 @@ import {
   Phone,
   Gamepad2,
   ArrowRight,
-  ShieldCheck,
-  RefreshCw,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { authAPI } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export default function RegisterPage() {
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -26,9 +25,6 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [step, setStep] = useState<"register" | "verify">("register");
-  const [pendingEmail, setPendingEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,66 +50,18 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const response = await authAPI.register({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        phonenumber: formData.phonenumber,
-      });
-
-      setPendingEmail(response.data.email || formData.email);
-      setStep("verify");
-      setSuccess("OTP sent successfully. Please check your email inbox.");
-    } catch (err: any) {
-      const backendMessage =
-        err.response?.data?.error || err.response?.data?.message;
-      setError(backendMessage || "Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!otp.trim() || otp.trim().length < 4) {
-      setError("Please enter a valid OTP");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await authAPI.verifyEmailOtp({
-        email: pendingEmail,
-        otp: otp.trim(),
-      });
-
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      setSuccess("Email verified successfully. Redirecting to dashboard...");
+      await register(
+        formData.username,
+        formData.email,
+        formData.password,
+        formData.phonenumber,
+      );
+      setSuccess("Registration successful! Redirecting...");
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1200);
+      }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.message || "OTP verification failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
-    try {
-      await authAPI.resendEmailOtp({ email: pendingEmail });
-      setSuccess("A new OTP has been sent to your email.");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to resend OTP");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -212,7 +160,7 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          {step === "register" ? (
+          {
             <form onSubmit={handleSubmit} className="space-y-4">
               {fields.map((field) => (
                 <div key={field.key}>
@@ -262,79 +210,7 @@ export default function RegisterPage() {
                 )}
               </motion.button>
             </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06]">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Verification email sent to
-                </p>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white break-all">
-                  {pendingEmail}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                  OTP Code
-                </label>
-                <div className="relative">
-                  <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="input pl-11 tracking-[0.35em] font-semibold"
-                    placeholder="123456"
-                    required
-                  />
-                </div>
-                <p className="text-[11px] text-gray-500 mt-2">
-                  Enter the 6-digit code from your email (valid for 10 minutes).
-                </p>
-              </div>
-
-              <motion.button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: loading ? 1 : 1.01 }}
-                whileTap={{ scale: loading ? 1 : 0.99 }}
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Verify Email <ShieldCheck className="w-4 h-4" />
-                  </>
-                )}
-              </motion.button>
-
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={loading}
-                  className="text-sm text-primary-600 dark:text-primary-400 hover:text-accent-500 font-semibold transition-colors disabled:opacity-50 flex items-center gap-1"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Resend OTP
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("register");
-                    setOtp("");
-                    setSuccess("");
-                    setError("");
-                  }}
-                  className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                >
-                  Change email
-                </button>
-              </div>
-            </form>
-          )}
+          }
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">

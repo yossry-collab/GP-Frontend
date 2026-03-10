@@ -21,11 +21,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      const redirectUrl =
+        sessionStorage.getItem("redirectAfterLogin") || "/dashboard";
+      sessionStorage.removeItem("redirectAfterLogin");
+      router.push(redirectUrl);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Login failed. Please try again.",
-      );
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
