@@ -40,12 +40,12 @@ const heroSlides = [
     title: "Red Dead Redemption 2",
   },
   {
-    image: "/images/hero/ragnarok.jpg",
+    image: "/images/hero/god-of-war-valhalla-3840x2160-13667.jpg",
     title: "God of War Ragnarök",
   },
   {
-    image: "/images/hero/eldenRing.jpg",
-    title: "Elden Ring",
+    image: "/images/hero/apex-legends-breach-3840x2160-25673.jpg",
+    title: "Apex Legends",
   },
 ];
 

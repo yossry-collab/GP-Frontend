@@ -57,16 +57,16 @@ const heroSlides = [
     tag: "Top Rated",
   },
   {
-    image: "/images/hero/ragnarok.jpg",
+    image: "/images/hero/god-of-war-valhalla-3840x2160-13667.jpg",
     title: "God of War Ragnarök",
     subtitle: "Embark on an epic Norse mythology adventure",
     tag: "Award Winner",
   },
   {
-    image: "/images/hero/eldenRing.jpg",
-    title: "Elden Ring",
-    subtitle: "A vast world full of excitement and discovery",
-    tag: "Game of the Year",
+    image: "/images/hero/apex-legends-breach-3840x2160-25673.jpg",
+    title: "Apex Legends",
+    subtitle: "Squad up for high-speed battle royale action",
+    tag: "Free to Play",
   },
 ];
 
