@@ -161,6 +161,21 @@ export const ordersAPI = {
 }
 
 // ═══════════════════════════════════════════════════════
+// ─── PAYMENT API (FLOUCI) ────────────────────────────
+// ═══════════════════════════════════════════════════════
+export const paymentAPI = {
+  // Initiate a Flouci payment session for an order
+  initiate: async (orderId: string) => {
+    return apiClient.post('/api/payment/initiate', { orderId })
+  },
+
+  // Verify a Flouci payment after redirect
+  verify: async (paymentId: string) => {
+    return apiClient.get(`/api/payment/verify/${paymentId}`)
+  },
+}
+
+// ═══════════════════════════════════════════════════════
 // ─── NOTIFICATIONS API ───────────────────────────────
 // ═══════════════════════════════════════════════════════
 export const notificationsAPI = {
@@ -193,4 +208,78 @@ export const adminAPI = {
 // ═══════════════════════════════════════════════════════
 // ─── LOYALTY & REWARDS API ───────────────────────────
 // ═══════════════════════════════════════════════════════
+export const loyaltyAPI = {
+  // Points & Balance
+  getBalance: () => apiClient.get('/api/loyalty/balance'),
+  getHistory: (page = 1, limit = 20) => apiClient.get('/api/loyalty/history', { params: { page, limit } }),
+  dailyLogin: () => apiClient.post('/api/loyalty/daily-login'),
+  earnFromPurchase: (orderId: string, amount: number) => apiClient.post('/api/loyalty/earn-purchase', { orderId, amount }),
+  signupBonus: () => apiClient.post('/api/loyalty/signup-bonus'),
+
+  // Rewards
+  getRewards: () => apiClient.get('/api/loyalty/rewards'),
+  redeemReward: (rewardId: string) => apiClient.post(`/api/loyalty/rewards/${rewardId}/redeem`),
+  getRedemptions: () => apiClient.get('/api/loyalty/redemptions'),
+
+  // Quests
+  getQuests: () => apiClient.get('/api/loyalty/quests'),
+  completeQuest: (questId: string) => apiClient.post(`/api/loyalty/quests/${questId}/complete`),
+
+  // Packs
+  getPacks: () => apiClient.get('/api/loyalty/packs'),
+  openPack: (packId: string) => apiClient.post(`/api/loyalty/packs/${packId}/open`),
+  getPackHistory: () => apiClient.get('/api/loyalty/packs/history'),
+
+  // Membership
+  getMembership: () => apiClient.get('/api/loyalty/membership'),
+  upgradeTier: (tier: string) => apiClient.post('/api/loyalty/membership/upgrade', { tier }),
+
+  // Admin
+  adminStats: () => apiClient.get('/api/loyalty/admin/stats'),
+  adminSeed: () => apiClient.post('/api/loyalty/admin/seed'),
+  adminGrantPoints: (userId: string, amount: number, reason?: string) =>
+    apiClient.post('/api/loyalty/admin/grant-points', { userId, amount, reason }),
+  adminGetConfig: () => apiClient.get('/api/loyalty/admin/config'),
+  adminSetConfig: (key: string, value: any, description?: string) =>
+    apiClient.post('/api/loyalty/admin/config', { key, value, description }),
+  adminGetRewards: () => apiClient.get('/api/loyalty/admin/rewards'),
+  adminCreateReward: (data: any) => apiClient.post('/api/loyalty/admin/rewards', data),
+  adminUpdateReward: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/rewards/${id}`, data),
+  adminDeleteReward: (id: string) => apiClient.delete(`/api/loyalty/admin/rewards/${id}`),
+  adminGetQuests: () => apiClient.get('/api/loyalty/admin/quests'),
+  adminCreateQuest: (data: any) => apiClient.post('/api/loyalty/admin/quests', data),
+  adminUpdateQuest: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/quests/${id}`, data),
+  adminGetPacks: () => apiClient.get('/api/loyalty/admin/packs'),
+  adminCreatePack: (data: any) => apiClient.post('/api/loyalty/admin/packs', data),
+  adminUpdatePack: (id: string, data: any) => apiClient.put(`/api/loyalty/admin/packs/${id}`, data),
+  adminGetMemberships: () => apiClient.get('/api/loyalty/admin/memberships'),
+  adminUpsertMembership: (data: any) => apiClient.post('/api/loyalty/admin/memberships', data),
+}
+
+export const codesWholesaleAPI = {
+  browseProducts: async () => {
+    return apiClient.get('/api/cw/products')
+  },
+
+  getProduct: async (id: string) => {
+    return apiClient.get(`/api/cw/products/${id}`)
+  },
+
+  syncProducts: async (options?: { clearExisting?: boolean; limit?: number }) => {
+    return apiClient.post('/api/cw/sync', options || {})
+  },
+
+  getPlatforms: async () => {
+    return apiClient.get('/api/cw/platforms')
+  },
+
+  getRegions: async () => {
+    return apiClient.get('/api/cw/regions')
+  },
+
+  getAccount: async () => {
+    return apiClient.get('/api/cw/account')
+  },
+}
+
 export default apiClient
