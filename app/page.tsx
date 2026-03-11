@@ -31,6 +31,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from "react";
 import { productsAPI } from "@/lib/api";
+import FloatingOrb from "@/components/FloatingOrb";
+import LoadingScreen from "@/components/LoadingScreen";
 import Navbar from "@/components/Navbar";
 import SafeImage from "@/components/SafeImage";
 
@@ -114,27 +116,6 @@ function useCounter(target: number, duration = 2000, active = true) {
   return count;
 }
 
-/* ─── floating orb component ─── */
-function FloatingOrb({
-  className,
-  delay = 0,
-}: {
-  className?: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      className={`absolute rounded-full blur-3xl pointer-events-none ${className}`}
-      animate={{
-        y: [0, -30, 0, 20, 0],
-        x: [0, 15, -10, 10, 0],
-        scale: [1, 1.1, 0.95, 1.05, 1],
-      }}
-      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay }}
-    />
-  );
-}
-
 interface Product {
   _id: string;
   name: string;
@@ -154,6 +135,8 @@ export default function LandingPage() {
   const [statsVisible, setStatsVisible] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
 
+  //const userBodyLanguage = useCounter(10000000, 2200, statsVisible);
+  //const userBody = useCounter(10000000, 2200, statsVisible);
   const userCount = useCounter(10000000, 2200, statsVisible);
   const productCount = useCounter(4750, 2000, statsVisible);
   const countryCount = useCounter(152, 1800, statsVisible);
@@ -188,11 +171,7 @@ export default function LandingPage() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#0b0b11] flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   const categories = [

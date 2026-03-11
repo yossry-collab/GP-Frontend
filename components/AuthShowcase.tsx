@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, Shield, Sparkles, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
+import FloatingOrb from "@/components/FloatingOrb";
 
 const authSlides = [
   {
@@ -31,26 +32,6 @@ const authSlides = [
     position: "center 14%",
   },
 ];
-
-function FloatingOrb({
-  className,
-  delay = 0,
-}: {
-  className: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      className={`absolute rounded-full blur-3xl pointer-events-none ${className}`}
-      animate={{
-        y: [0, -30, 0, 18, 0],
-        x: [0, 14, -10, 8, 0],
-        scale: [1, 1.08, 0.96, 1.04, 1],
-      }}
-      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay }}
-    />
-  );
-}
 
 type AuthShowcaseProps = {
   badge: string;
@@ -87,10 +68,16 @@ export default function AuthShowcase({
       <FloatingOrb
         className="w-72 h-72 bg-accent-500/10 -bottom-24 -right-16"
         delay={2}
+        driftY={[0, -30, 0, 18, 0]}
+        driftX={[0, 14, -10, 8, 0]}
+        scale={[1, 1.08, 0.96, 1.04, 1]}
       />
       <FloatingOrb
         className="w-56 h-56 bg-cyan-500/10 top-1/3 right-1/4"
         delay={4}
+        driftY={[0, -30, 0, 18, 0]}
+        driftX={[0, 14, -10, 8, 0]}
+        scale={[1, 1.08, 0.96, 1.04, 1]}
       />
 
       <div className="relative z-10 min-h-screen lg:h-screen grid lg:grid-cols-[1.08fr_0.92fr]">
@@ -186,16 +173,32 @@ export default function AuthShowcase({
                 transition={{ duration: 0.55 }}
               >
                 <div className="absolute -inset-x-8 -inset-y-6 rounded-[2.5rem] bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.28),transparent_28%),radial-gradient(circle_at_82%_24%,rgba(191,219,254,0.24),transparent_30%),radial-gradient(circle_at_50%_78%,rgba(244,114,182,0.2),transparent_32%),radial-gradient(circle_at_30%_65%,rgba(196,181,253,0.22),transparent_34%)] blur-3xl opacity-100" />
-                <div className="absolute inset-0 text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-primary-200/20 blur-md pointer-events-none select-none translate-y-2 scale-[1.02]">
+                <div
+                  className="absolute inset-0 text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] pointer-events-none select-none translate-y-2 scale-[1.02] blur-md opacity-80"
+                  style={{
+                    color: "transparent",
+                    backgroundImage:
+                      "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(125,211,252,0.28) 28%, rgba(196,181,253,0.3) 58%, rgba(244,114,182,0.26) 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
                   {panelTitle}
                 </div>
                 <motion.h1
                   className="relative text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-transparent bg-clip-text [text-shadow:0_0_30px_rgba(255,255,255,0.16)]"
                   style={{
+                    color: "transparent",
                     backgroundImage:
-                      "linear-gradient(140deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 10%, rgba(224,242,254,0.96) 24%, rgba(191,219,254,0.94) 42%, rgba(196,181,253,0.94) 60%, rgba(244,114,182,0.92) 78%, rgba(255,255,255,0.98) 100%)",
+                      "linear-gradient(140deg, rgba(255,255,255,0.82) 0%, rgba(224,242,254,0.88) 18%, rgba(147,197,253,0.94) 34%, rgba(196,181,253,0.96) 56%, rgba(244,114,182,0.96) 78%, rgba(255,255,255,0.86) 100%)",
                     backgroundSize: "240% 240%",
-                    WebkitTextStroke: "1px rgba(255,255,255,0.18)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    WebkitTextStroke: "1px rgba(255,255,255,0.14)",
+                    filter:
+                      "drop-shadow(0 0 14px rgba(255,255,255,0.12)) drop-shadow(0 0 26px rgba(168,85,247,0.22))",
                   }}
                   animate={{
                     backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
@@ -208,16 +211,6 @@ export default function AuthShowcase({
                 >
                   {panelTitle}
                 </motion.h1>
-                <motion.div
-                  className="absolute inset-y-0 -left-[12%] w-[36%] bg-[linear-gradient(110deg,transparent_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.55)_48%,rgba(255,255,255,0.08)_76%,transparent_100%)] blur-[1px] pointer-events-none"
-                  animate={{ x: ["0%", "320%"] }}
-                  transition={{
-                    duration: 3.2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    repeatDelay: 1.2,
-                  }}
-                />
               </motion.div>
               <motion.p
                 className="text-white/70 text-base sm:text-lg leading-relaxed mt-4 max-w-lg"
