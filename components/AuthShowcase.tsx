@@ -8,12 +8,6 @@ import FloatingOrb from "@/components/FloatingOrb";
 
 const authSlides = [
   {
-    image: "/images/hero/cod-blackops.jpg",
-    title: "Call of Duty: Black Ops",
-    subtitle: "Fast delivery for your next drop.",
-    position: "center 22%",
-  },
-  {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
     title: "Grand Theft Auto VI",
     subtitle: "Reserve the biggest launches early.",
@@ -30,6 +24,31 @@ const authSlides = [
     title: "Apex Legends",
     subtitle: "Secure, instant, always online.",
     position: "center 14%",
+  },
+  {
+    image: "/images/hero/fortnite-festival-3840x2160-25375.jpg",
+    title: "Fortnite Festival",
+    subtitle: "Big drops, live moments, instant access.",
+    position: "center 28%",
+  },
+  {
+    image: "/images/hero/call-of-duty-modern-3840x2160-13480.jpg",
+    title: "Call of Duty: Modern Warfare III",
+    subtitle: "Load in fast and stay mission ready.",
+    position: "center 24%",
+  },
+  {
+    image: "/images/hero/assassins-creed-3840x2160-16757.jpeg",
+    title: "Assassin's Creed Shadows",
+    subtitle: "Premium worlds with cinematic atmosphere.",
+    position: "center 38%",
+  },
+  {
+    image:
+      "/images/hero/battlefield-2042-e3-2021-pc-games-playstation-4-playstation-3840x2160-5613.jpg",
+    title: "Battlefield 2042",
+    subtitle: "Massive action, secured and delivered instantly.",
+    position: "center 32%",
   },
 ];
 

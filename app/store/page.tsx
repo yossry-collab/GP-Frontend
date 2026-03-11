@@ -68,15 +68,6 @@ function FloatingOrb({
 
 const heroSlides = [
   {
-    image: "/images/hero/cod-blackops.jpg",
-    title: "Call of Duty: Black Ops",
-    subtitle: "The ultimate tactical shooter",
-    tag: "Best Seller",
-    heroPosition: "center 22%",
-    cardPosition: "center 24%",
-    accent: "#f97316",
-  },
-  {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
     title: "Grand Theft Auto VI",
     subtitle: "The most anticipated game of the decade",
@@ -130,6 +121,43 @@ const heroSlides = [
     heroPosition: "center 15%",
     cardPosition: "center 17%",
     accent: "#dc2626",
+  },
+  {
+    image: "/images/hero/fortnite-festival-3840x2160-25375.jpg",
+    title: "Fortnite Festival",
+    subtitle: "Headline the next big crossover event",
+    tag: "Live Event",
+    heroPosition: "center 28%",
+    cardPosition: "center 48%",
+    accent: "#f472b6",
+  },
+  {
+    image: "/images/hero/call-of-duty-modern-3840x2160-13480.jpg",
+    title: "Call of Duty: Modern Warfare III",
+    subtitle: "Fast, brutal, and built for elite squads",
+    tag: "Action",
+    heroPosition: "center 24%",
+    cardPosition: "center 42%",
+    accent: "#ef4444",
+  },
+  {
+    image: "/images/hero/assassins-creed-3840x2160-16757.jpeg",
+    title: "Assassin's Creed Shadows",
+    subtitle: "A red-lit war between shadow and honor",
+    tag: "Stealth",
+    heroPosition: "center 38%",
+    cardPosition: "center 46%",
+    accent: "#dc2626",
+  },
+  {
+    image:
+      "/images/hero/battlefield-2042-e3-2021-pc-games-playstation-4-playstation-3840x2160-5613.jpg",
+    title: "Battlefield 2042",
+    subtitle: "All-out war with scale, storms, and pressure",
+    tag: "Battlefield",
+    heroPosition: "center 32%",
+    cardPosition: "center 44%",
+    accent: "#06b6d4",
   },
 ];
 
@@ -432,7 +460,7 @@ export default function StorePage() {
 
               {/* Current slide card */}
               <motion.div
-                className="hidden lg:flex flex-col items-end gap-4 flex-shrink-0"
+                className="hidden lg:flex flex-col items-end gap-4 flex-shrink-0 lg:translate-x-10 lg:translate-y-8 xl:translate-x-14 xl:translate-y-10"
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
@@ -483,7 +511,7 @@ export default function StorePage() {
                 </div>
 
                 {/* Mini stat cards */}
-                <div className="flex gap-3">
+                <div className="flex gap-3 mr-2 xl:mr-4 mt-1">
                   <motion.div
                     className="px-4 py-2.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-center"
                     animate={{ y: [0, -5, 0] }}

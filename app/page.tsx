@@ -39,14 +39,6 @@ import SafeImage from "@/components/SafeImage";
 /* ─── hero slides ─── */
 const heroSlides = [
   {
-    image: "/images/hero/cod-blackops.jpg",
-    title: "Call of Duty: Black Ops",
-    subtitle: "Dominate the battlefield",
-    heroPosition: "center 22%",
-    cardPosition: "center 24%",
-    accent: "#f97316",
-  },
-  {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
     title: "Grand Theft Auto VI",
     subtitle: "Welcome to Vice City",
@@ -94,6 +86,39 @@ const heroSlides = [
     heroPosition: "center 15%",
     cardPosition: "center 17%",
     accent: "#dc2626",
+  },
+  {
+    image: "/images/hero/fortnite-festival-3840x2160-25375.jpg",
+    title: "Fortnite Festival",
+    subtitle: "Take the stage and own the spotlight",
+    heroPosition: "center 28%",
+    cardPosition: "center 48%",
+    accent: "#f472b6",
+  },
+  {
+    image: "/images/hero/call-of-duty-modern-3840x2160-13480.jpg",
+    title: "Call of Duty: Modern Warfare III",
+    subtitle: "Lock in for a full-throttle combat drop",
+    heroPosition: "center 24%",
+    cardPosition: "center 42%",
+    accent: "#ef4444",
+  },
+  {
+    image: "/images/hero/assassins-creed-3840x2160-16757.jpeg",
+    title: "Assassin's Creed Shadows",
+    subtitle: "Step into a darker era of stealth and steel",
+    heroPosition: "center 38%",
+    cardPosition: "center 46%",
+    accent: "#dc2626",
+  },
+  {
+    image:
+      "/images/hero/battlefield-2042-e3-2021-pc-games-playstation-4-playstation-3840x2160-5613.jpg",
+    title: "Battlefield 2042",
+    subtitle: "Massive warfare at the edge of chaos",
+    heroPosition: "center 32%",
+    cardPosition: "center 44%",
+    accent: "#06b6d4",
   },
 ];
 
