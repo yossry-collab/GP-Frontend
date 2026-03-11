@@ -138,7 +138,7 @@ export default function AuthShowcase({
                   <Gamepad2 className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <div className="flex items-center gap-0.5 text-white text-xl sm:text-2xl font-extrabold tracking-[0.18em]">
+                  <div className="flex items-center gap-0.5 text-white text-lg sm:text-2xl font-extrabold tracking-[0.14em] sm:tracking-[0.18em]">
                     {"GAMEPLUG".split("").map((letter, index) => (
                       <motion.span
                         key={`${letter}-${index}`}
@@ -193,7 +193,7 @@ export default function AuthShowcase({
               >
                 <div className="absolute -inset-x-8 -inset-y-6 rounded-[2.5rem] bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.28),transparent_28%),radial-gradient(circle_at_82%_24%,rgba(191,219,254,0.24),transparent_30%),radial-gradient(circle_at_50%_78%,rgba(244,114,182,0.2),transparent_32%),radial-gradient(circle_at_30%_65%,rgba(196,181,253,0.22),transparent_34%)] blur-3xl opacity-100" />
                 <div
-                  className="absolute inset-0 text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] pointer-events-none select-none translate-y-2 scale-[1.02] blur-md opacity-80"
+                  className="absolute inset-0 text-[2.2rem] sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] pointer-events-none select-none translate-y-2 scale-[1.02] blur-md opacity-80"
                   style={{
                     color: "transparent",
                     backgroundImage:
@@ -206,7 +206,7 @@ export default function AuthShowcase({
                   {panelTitle}
                 </div>
                 <motion.h1
-                  className="relative text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-transparent bg-clip-text [text-shadow:0_0_30px_rgba(255,255,255,0.16)]"
+                  className="relative text-[2.2rem] sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-transparent bg-clip-text [text-shadow:0_0_30px_rgba(255,255,255,0.16)]"
                   style={{
                     color: "transparent",
                     backgroundImage:

@@ -256,6 +256,35 @@ export const loyaltyAPI = {
   adminUpsertMembership: (data: any) => apiClient.post('/api/loyalty/admin/memberships', data),
 }
 
+export const supportAPI = {
+  getKnowledge: async (params?: { locale?: 'en' | 'fr'; category?: string; search?: string }) => {
+    return apiClient.get('/api/support/knowledge', { params })
+  },
+  getContext: async () => {
+    return apiClient.get('/api/support/context')
+  },
+  createTicket: async (data: {
+    subject: string
+    message: string
+    category?: 'order' | 'payment' | 'refund' | 'account' | 'loyalty' | 'product' | 'technical' | 'other'
+    priority?: 'low' | 'medium' | 'high' | 'urgent'
+    language?: 'en' | 'fr'
+    orderId?: string
+    summary?: string
+    aiSummary?: string
+    source?: 'chatwoot' | 'web' | 'email' | 'manual'
+    metadata?: Record<string, unknown>
+  }) => {
+    return apiClient.post('/api/support/tickets', data)
+  },
+  getTickets: async () => {
+    return apiClient.get('/api/support/tickets')
+  },
+  getTicketById: async (id: string) => {
+    return apiClient.get(`/api/support/tickets/${id}`)
+  },
+}
+
 export const codesWholesaleAPI = {
   browseProducts: async () => {
     return apiClient.get('/api/cw/products')

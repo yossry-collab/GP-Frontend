@@ -186,8 +186,8 @@ export default function CheckoutPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-3 lg:max-w-sm">
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                <div className="grid grid-cols-2 gap-3 w-full lg:max-w-sm">
+                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Items
                     </p>
@@ -195,7 +195,7 @@ export default function CheckoutPage() {
                       {itemCount}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Instant ready
                     </p>
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
                       {instantItems}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                  <div className="col-span-2 min-[420px]:col-span-1 rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Total
                     </p>
@@ -439,7 +439,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="rounded-2xl border-2 border-primary-500/25 bg-primary-50/50 dark:bg-primary-500/5 p-4 sm:p-5">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                         F
                       </div>
@@ -451,7 +451,7 @@ export default function CheckoutPage() {
                           Secure payment via Flouci wallet or bank card.
                         </p>
                       </div>
-                      <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center self-start sm:self-auto">
                         <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
                       </div>
                     </div>

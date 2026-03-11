@@ -190,8 +190,8 @@ export default function CartPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-3 lg:max-w-sm">
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                <div className="grid grid-cols-2 gap-3 w-full lg:max-w-sm">
+                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Items
                     </p>
@@ -199,7 +199,7 @@ export default function CartPage() {
                       {itemCount}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Instant ready
                     </p>
@@ -207,7 +207,7 @@ export default function CartPage() {
                       {digitalReadyCount}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-[132px]">
+                  <div className="col-span-2 min-[420px]:col-span-1 rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50/90 dark:bg-white/[0.03] px-4 py-3 min-w-0">
                     <p className="text-[11px] uppercase tracking-[0.18em] font-bold text-gray-400 mb-1">
                       Subtotal
                     </p>
@@ -288,8 +288,8 @@ export default function CartPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05, duration: 0.35 }}
                   >
-                    <div className="flex flex-col sm:flex-row gap-5">
-                      <div className="w-full sm:w-32 h-32 rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.04] flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+                      <div className="w-full sm:w-32 h-28 sm:h-32 rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.04] flex-shrink-0">
                         {item.product.image ? (
                           <SafeImage
                             src={item.product.image}
@@ -339,7 +339,7 @@ export default function CartPage() {
                           </div>
                         </div>
 
-                        <div className="mt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center gap-3">
                             <motion.button
                               onClick={() =>

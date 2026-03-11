@@ -968,7 +968,8 @@ function OverviewPage({ username }: { username: string }) {
                   <tr className="text-left text-[11px] text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-white/[0.02]">
                     <th className="px-6 py-3 font-semibold">#</th>
                     <th className="px-6 py-3 font-semibold">Product</th>
-                    <th className="px-6 py-3 font-semibold">Orders</th>
+                    <th className="px-6 py-3 font-semibold"
+                    >Orders</th>
                     <th className="px-6 py-3 font-semibold">Revenue</th>
                   </tr>
                 </thead>

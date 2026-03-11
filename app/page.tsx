@@ -338,7 +338,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[96vh] md:min-h-[94vh] lg:min-h-[98vh] overflow-hidden flex items-center">
+      <section className="relative min-h-[100svh] sm:min-h-[92vh] md:min-h-[94vh] lg:min-h-[98vh] overflow-hidden flex items-center">
         {/* Floating Orbs */}
         <FloatingOrb
           className="w-72 h-72 bg-primary-500/20 -top-20 -left-20"
@@ -388,7 +388,7 @@ export default function LandingPage() {
         </div>
 
         {/* Slide indicators — bottom-center pill style */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
+        <div className="absolute bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
           {heroSlides.map((_, idx) => (
             <button
               key={idx}
@@ -406,17 +406,17 @@ export default function LandingPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full pt-28 pb-20 md:pt-36 md:pb-28 lg:pt-40">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full pt-24 pb-16 sm:pt-28 sm:pb-20 md:pt-36 md:pb-28 lg:pt-40">
+          <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12">
             <motion.div
-              className="flex-1 max-w-2xl"
+              className="flex-1 max-w-2xl text-center lg:text-left"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
               {/* Badge */}
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -425,13 +425,13 @@ export default function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
-                <span className="text-sm font-medium text-white/90">
+                <span className="text-xs sm:text-sm font-medium text-white/90">
                   10M+ gamers trust us worldwide
                 </span>
               </motion.div>
 
               <motion.h1
-                className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.05] mb-6 text-white"
+                className="text-[2.5rem] sm:text-5xl lg:text-7xl font-extrabold leading-[1.02] sm:leading-[1.05] mb-6 text-white"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.6 }}
@@ -449,7 +449,7 @@ export default function LandingPage() {
               </motion.h1>
 
               <motion.p
-                className="text-lg sm:text-xl text-gray-300 mb-8 max-w-lg leading-relaxed"
+                className="text-base sm:text-xl text-gray-300 mb-8 max-w-lg leading-relaxed mx-auto lg:mx-0"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
@@ -459,14 +459,14 @@ export default function LandingPage() {
               </motion.p>
 
               <motion.div
-                className="flex flex-wrap gap-3 mb-10"
+                className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-10"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
                 <motion.button
                   onClick={() => router.push("/register")}
-                  className="btn-primary px-8 py-4 text-sm flex items-center gap-2 shadow-glow"
+                  className="btn-primary w-full sm:w-auto px-8 py-4 text-sm flex items-center justify-center gap-2 shadow-glow"
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                 >
@@ -474,7 +474,7 @@ export default function LandingPage() {
                 </motion.button>
                 <motion.button
                   onClick={() => router.push("/login")}
-                  className="px-8 py-4 text-sm font-semibold bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all"
+                  className="w-full sm:w-auto px-8 py-4 text-sm font-semibold bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all"
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                 >
@@ -484,7 +484,7 @@ export default function LandingPage() {
 
               {/* Trust indicators */}
               <motion.div
-                className="flex flex-wrap items-center gap-5 text-sm text-gray-300/80"
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-5 text-sm text-gray-300/80"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}

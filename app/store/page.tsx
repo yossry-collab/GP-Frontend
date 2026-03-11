@@ -339,7 +339,7 @@ export default function StorePage() {
         {/* ═══════════════════════════════════════════════════════ */}
         {/* ─── HERO BANNER WITH SLIDESHOW ────────────────────── */}
         {/* ═══════════════════════════════════════════════════════ */}
-        <section className="relative h-[62vh] min-h-[430px] md:h-[70vh] md:min-h-[520px] md:max-h-[720px] overflow-hidden">
+        <section className="relative h-[72svh] min-h-[500px] sm:h-[62vh] sm:min-h-[430px] md:h-[70vh] md:min-h-[520px] md:max-h-[720px] overflow-hidden">
           {/* Floating Orbs */}
           <FloatingOrb
             className="w-72 h-72 bg-primary-500/15 -top-20 -left-20"
@@ -386,10 +386,10 @@ export default function StorePage() {
           </div>
 
           {/* Hero content */}
-          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center pt-14 md:pt-20 lg:pt-24">
+          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center pt-16 pb-12 sm:pt-14 md:pt-20 lg:pt-24">
             <div className="flex flex-col lg:flex-row items-center gap-8 w-full">
               <motion.div
-                className="flex-1 max-w-xl"
+                className="flex-1 max-w-xl w-full text-center lg:text-left"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -404,7 +404,7 @@ export default function StorePage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                   </span>
-                  <span className="text-sm font-medium text-white/90">
+                  <span className="text-xs sm:text-sm font-medium text-white/90">
                     {products.length}+ products available
                   </span>
                 </motion.div>
@@ -428,7 +428,7 @@ export default function StorePage() {
                 </motion.h1>
 
                 <motion.p
-                  className="text-base text-gray-300 mb-6 max-w-lg leading-relaxed"
+                  className="text-sm sm:text-base text-gray-300 mb-6 max-w-lg leading-relaxed mx-auto lg:mx-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.25 }}
@@ -438,7 +438,7 @@ export default function StorePage() {
                 </motion.p>
 
                 <motion.div
-                  className="flex flex-wrap items-center gap-5 text-sm text-gray-300/80"
+                  className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-5 text-sm text-gray-300/80"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.35 }}
@@ -455,6 +455,58 @@ export default function StorePage() {
                       {label}
                     </div>
                   ))}
+                </motion.div>
+
+                <motion.div
+                  className="lg:hidden mt-6 w-full max-w-sm mx-auto rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25, duration: 0.45 }}
+                >
+                  <div className="relative h-40">
+                    <img
+                      src={heroSlides[currentSlide].image}
+                      alt={heroSlides[currentSlide].title}
+                      className="w-full h-full object-cover"
+                      style={{
+                        objectPosition: heroSlides[currentSlide].cardPosition,
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2 py-0.5 rounded-md bg-primary-500/80 backdrop-blur-sm text-[9px] font-bold text-white uppercase">
+                        {heroSlides[currentSlide].tag}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 text-left">
+                      <p className="text-white font-bold text-sm leading-tight">
+                        {heroSlides[currentSlide].title}
+                      </p>
+                      <p className="text-white/60 text-[11px] mt-1 line-clamp-2">
+                        {heroSlides[currentSlide].subtitle}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 p-3 bg-black/20">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                      <p className="text-sm font-bold text-white leading-none">
+                        {products.length}+
+                      </p>
+                      <p className="text-[9px] text-white/45 uppercase tracking-wider mt-1">
+                        Products
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                      <p className="text-sm font-bold text-gradient leading-none">
+                        {topDeals.length > 0
+                          ? `${Math.max(...topDeals.map((d) => d.discountPercentage || 0))}%`
+                          : "Hot"}
+                      </p>
+                      <p className="text-[9px] text-white/45 uppercase tracking-wider mt-1">
+                        Max Discount
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               </motion.div>
 
@@ -553,7 +605,7 @@ export default function StorePage() {
           </div>
 
           {/* Slide indicators — pill container */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
             {heroSlides.map((_, idx) => (
               <button
                 key={idx}

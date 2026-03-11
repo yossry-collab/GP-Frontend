@@ -396,24 +396,30 @@ export default function ProfilePage() {
                       style={{ width: `${accountCompletion}%` }}
                     />
                   </div>
-                  <div className="mt-4 space-y-3 text-sm text-gray-500 dark:text-white/70">
-                    <div className="flex items-center justify-between gap-4">
-                      <span>Last order</span>
-                      <span className="font-semibold text-gray-900 dark:text-white text-right">
-                        {lastOrderDate}
-                      </span>
+                  <div className="mt-4 grid grid-cols-1 min-[420px]:grid-cols-3 lg:grid-cols-1 gap-3 text-sm text-gray-500 dark:text-white/70">
+                    <div className="rounded-xl border border-gray-200 bg-white/70 px-3 py-3 dark:border-white/[0.06] dark:bg-[#101018]">
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Last order</span>
+                        <span className="font-semibold text-gray-900 dark:text-white text-right">
+                          {lastOrderDate}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span>Pending orders</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
-                        {pendingOrders}
-                      </span>
+                    <div className="rounded-xl border border-gray-200 bg-white/70 px-3 py-3 dark:border-white/[0.06] dark:bg-[#101018]">
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Pending orders</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {pendingOrders}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span>Total spent</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
-                        ${totalSpent.toFixed(2)}
-                      </span>
+                    <div className="rounded-xl border border-gray-200 bg-white/70 px-3 py-3 dark:border-white/[0.06] dark:bg-[#101018]">
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Total spent</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          ${totalSpent.toFixed(2)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -423,7 +429,7 @@ export default function ProfilePage() {
                 {statCards.map((stat, index) => (
                   <motion.div
                     key={stat.label}
-                    className="rounded-2xl border border-gray-200 bg-white/85 p-5 dark:border-white/[0.06] dark:bg-white/[0.03] backdrop-blur-xl"
+                    className="rounded-2xl border border-gray-200 bg-white/85 p-4 sm:p-5 dark:border-white/[0.06] dark:bg-white/[0.03] backdrop-blur-xl"
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 * index, duration: 0.4 }}

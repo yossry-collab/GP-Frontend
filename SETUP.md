@@ -3,12 +3,14 @@
 ## Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 cd frontend
 npm install
 ```
 
 ### 2. Run Development Server
+
 ```bash
 npm run dev
 ```
@@ -36,17 +38,20 @@ app/
 ## Features Implemented
 
 ✅ **Modern Gaming UI**
+
 - Dark gradient backgrounds (gaming-themed)
 - Glass morphism login card
 - Animated decorative elements
 - Framer Motion smooth animations
 
 ✅ **Fully Responsive**
+
 - Desktop: Two-column layout (brand + login)
 - Mobile: Stacked vertical layout
 - All breakpoints optimized
 
 ✅ **Form Functionality**
+
 - Email input field (based on user model)
 - Password input with show/hide toggle
 - Login button with loading state
@@ -55,6 +60,7 @@ app/
 - Social login buttons
 
 ✅ **Ready for Backend Integration**
+
 - API client configured in `lib/api.ts`
 - Auth context for state management in `lib/auth-context.tsx`
 - Uncomment API call in `LoginForm.tsx` handleSubmit function
@@ -66,7 +72,20 @@ File: `.env.local`
 ```bash
 NEXT_PUBLIC_API_URL=https://gp-backend-vg3p.onrender.com
 NEXT_PUBLIC_APP_NAME=GamePlug
+NEXT_PUBLIC_CHATWOOT_BASE_URL=https://app.chatwoot.com
+NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN=your_chatwoot_website_token
 ```
+
+## Chatwoot Setup
+
+The first support-agent integration is mounted globally in the frontend, but it only appears for authenticated users.
+
+1. In Chatwoot Cloud, create a website inbox.
+2. Copy the website token into `NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN`.
+3. Keep `NEXT_PUBLIC_CHATWOOT_BASE_URL=https://app.chatwoot.com` unless you move to self-hosted Chatwoot later.
+4. Restart the frontend after updating `.env.local`.
+
+The frontend now includes the base Chatwoot widget integration and the backend now exposes support knowledge and ticket endpoints under `/api/support` for future AI workflows.
 
 ## To Connect with Backend
 
@@ -74,21 +93,24 @@ Edit `components/LoginForm.tsx` in the `handleSubmit` function:
 
 ```typescript
 // Uncomment this:
-const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password }),
-})
+const response = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  },
+);
 ```
 
 Or use the provided API client:
 
 ```typescript
-import { authAPI } from '@/lib/api'
+import { authAPI } from "@/lib/api";
 
-const response = await authAPI.login({ email, password })
-const { token, user } = response.data
-localStorage.setItem('token', token)
+const response = await authAPI.login({ email, password });
+const { token, user } = response.data;
+localStorage.setItem("token", token);
 // Redirect to dashboard
 ```
 
@@ -104,6 +126,7 @@ localStorage.setItem('token', token)
 ## Testing
 
 With mock data (current):
+
 - Click "Let's Play" button
 - See loading state
 - Form is ready for real API
