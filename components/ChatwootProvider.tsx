@@ -3,22 +3,21 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 
+type ChatwootApi = {
+  setUser?: (identifier: string, attributes: Record<string, unknown>) => void;
+  setCustomAttributes?: (attributes: Record<string, unknown>) => void;
+  setLocale?: (locale: string) => void;
+  reset?: () => void;
+  toggle?: (state?: string) => void;
+};
+
 declare global {
   interface Window {
     chatwootSDK?: {
       run: (config: { websiteToken: string; baseUrl: string }) => void;
     };
     chatwootSettings?: Record<string, unknown>;
-    $chatwoot?: {
-      setUser?: (
-        identifier: string,
-        attributes: Record<string, unknown>,
-      ) => void;
-      setCustomAttributes?: (attributes: Record<string, unknown>) => void;
-      setLocale?: (locale: string) => void;
-      reset?: () => void;
-      toggle?: (state?: string) => void;
-    };
+    $chatwoot?: ChatwootApi;
     __chatwootBooted?: boolean;
   }
 }
@@ -44,17 +43,19 @@ const removeChatwootArtifacts = () => {
   delete window.chatwootSettings;
 };
 
-const waitForChatwoot = async () => {
+const waitForChatwoot = async (): Promise<ChatwootApi | null> => {
   if (typeof window === "undefined") return null;
   if (window.$chatwoot) return window.$chatwoot;
 
-  return new Promise<typeof window.$chatwoot>((resolve, reject) => {
+  return new Promise<ChatwootApi>((resolve, reject) => {
     let attempts = 0;
     const intervalId = window.setInterval(() => {
       attempts += 1;
-      if (window.$chatwoot) {
+      const currentChatwoot = window.$chatwoot;
+
+      if (currentChatwoot) {
         window.clearInterval(intervalId);
-        resolve(window.$chatwoot);
+        resolve(currentChatwoot as ChatwootApi);
         return;
       }
 
@@ -66,7 +67,7 @@ const waitForChatwoot = async () => {
   });
 };
 
-const loadChatwoot = async () => {
+const loadChatwoot = async (): Promise<ChatwootApi | null> => {
   if (typeof window === "undefined" || !WIDGET_BASE_URL || !WEBSITE_TOKEN) {
     return null;
   }

@@ -20,6 +20,16 @@
 				"build"
 			],
 			"isBackground": false
+		},
+		{
+			"label": "frontend build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false
 		}
 	]
 }
