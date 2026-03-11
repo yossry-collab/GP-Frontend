@@ -30,6 +30,17 @@ const HAS_VALID_CHATWOOT_CONFIG =
   Boolean(WEBSITE_TOKEN) &&
   WEBSITE_TOKEN !== "your_real_chatwoot_website_token";
 
+const getChatwootConfig = () => {
+  if (!HAS_VALID_CHATWOOT_CONFIG || !WIDGET_BASE_URL || !WEBSITE_TOKEN) {
+    return null;
+  }
+
+  return {
+    baseUrl: WIDGET_BASE_URL,
+    websiteToken: WEBSITE_TOKEN,
+  };
+};
+
 const removeChatwootArtifacts = () => {
   if (typeof window === "undefined") return;
 
@@ -72,7 +83,9 @@ const waitForChatwoot = async (): Promise<ChatwootApi | null> => {
 };
 
 const loadChatwoot = async (): Promise<ChatwootApi | null> => {
-  if (typeof window === "undefined" || !HAS_VALID_CHATWOOT_CONFIG) {
+  const chatwootConfig = getChatwootConfig();
+
+  if (typeof window === "undefined" || !chatwootConfig) {
     return null;
   }
 
@@ -94,7 +107,7 @@ const loadChatwoot = async (): Promise<ChatwootApi | null> => {
     await new Promise<void>((resolve, reject) => {
       const script = document.createElement("script");
       script.id = SCRIPT_ID;
-      script.src = `${WIDGET_BASE_URL}/packs/js/sdk.js`;
+      script.src = `${chatwootConfig.baseUrl}/packs/js/sdk.js`;
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();
@@ -105,8 +118,8 @@ const loadChatwoot = async (): Promise<ChatwootApi | null> => {
 
   if (window.chatwootSDK && !window.__chatwootBooted) {
     window.chatwootSDK.run({
-      websiteToken: WEBSITE_TOKEN,
-      baseUrl: WIDGET_BASE_URL,
+      websiteToken: chatwootConfig.websiteToken,
+      baseUrl: chatwootConfig.baseUrl,
     });
     window.__chatwootBooted = true;
   }
