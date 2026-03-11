@@ -20,6 +20,7 @@ import {
   Star,
   Award,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
@@ -139,6 +140,12 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     router.push("/");
+  };
+
+  const handleOpenSupportChat = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("gameplug:open-chat"));
+    }
   };
 
   const navLinks = isAuthenticated
@@ -342,6 +349,16 @@ export default function Navbar() {
 
               {/* User avatar */}
               <button
+                onClick={handleOpenSupportChat}
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all text-gray-600 dark:text-gray-300"
+                title="Open support chat"
+              >
+                <MessageCircle className="w-4 h-4 text-primary-500" />
+                <span className="text-sm font-medium">Help</span>
+              </button>
+
+              {/* User avatar */}
+              <button
                 onClick={() => router.push("/profile")}
                 className="hidden md:flex items-center gap-2.5 pl-3 pr-4 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all"
               >
@@ -441,6 +458,19 @@ export default function Navbar() {
                   )}
                 </button>
               ))}
+
+              {isAuthenticated && (
+                <button
+                  onClick={() => {
+                    handleOpenSupportChat();
+                    setMobileOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all"
+                >
+                  <MessageCircle className="w-4 h-4 text-primary-500" />
+                  Support Chat
+                </button>
+              )}
 
               {isAuthenticated ? (
                 <button

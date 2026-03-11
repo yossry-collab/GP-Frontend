@@ -25,6 +25,10 @@ declare global {
 const SCRIPT_ID = "chatwoot-sdk";
 const WIDGET_BASE_URL = process.env.NEXT_PUBLIC_CHATWOOT_BASE_URL;
 const WEBSITE_TOKEN = process.env.NEXT_PUBLIC_CHATWOOT_WEBSITE_TOKEN;
+const HAS_VALID_CHATWOOT_CONFIG =
+  Boolean(WIDGET_BASE_URL) &&
+  Boolean(WEBSITE_TOKEN) &&
+  WEBSITE_TOKEN !== "your_real_chatwoot_website_token";
 
 const removeChatwootArtifacts = () => {
   if (typeof window === "undefined") return;
@@ -68,7 +72,7 @@ const waitForChatwoot = async (): Promise<ChatwootApi | null> => {
 };
 
 const loadChatwoot = async (): Promise<ChatwootApi | null> => {
-  if (typeof window === "undefined" || !WIDGET_BASE_URL || !WEBSITE_TOKEN) {
+  if (typeof window === "undefined" || !HAS_VALID_CHATWOOT_CONFIG) {
     return null;
   }
 
@@ -120,7 +124,7 @@ export default function ChatwootProvider() {
     const syncChatwoot = async () => {
       if (isLoading) return;
 
-      if (!isAuthenticated || !user || !WIDGET_BASE_URL || !WEBSITE_TOKEN) {
+      if (!isAuthenticated || !user || !HAS_VALID_CHATWOOT_CONFIG) {
         if (window.$chatwoot) {
           window.$chatwoot.reset?.();
         }
@@ -161,8 +165,23 @@ export default function ChatwootProvider() {
 
     syncChatwoot();
 
+    const handleOpenChat = async () => {
+      if (!isAuthenticated || !user || !HAS_VALID_CHATWOOT_CONFIG) return;
+
+      try {
+        const chatwoot = await loadChatwoot();
+        if (!chatwoot || cancelled) return;
+        chatwoot.toggle?.("open");
+      } catch (error) {
+        console.error("Chatwoot open failed:", error);
+      }
+    };
+
+    window.addEventListener("gameplug:open-chat", handleOpenChat);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("gameplug:open-chat", handleOpenChat);
     };
   }, [isAuthenticated, isLoading, user]);
 
