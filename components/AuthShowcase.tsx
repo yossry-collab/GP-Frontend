@@ -179,14 +179,46 @@ export default function AuthShowcase({
                 {badge}
               </motion.div>
 
-              <motion.h1
-                className="text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold text-white leading-[1.03]"
+              <motion.div
+                className="relative inline-block"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55 }}
               >
-                {panelTitle}
-              </motion.h1>
+                <div className="absolute -inset-x-8 -inset-y-6 rounded-[2.5rem] bg-[radial-gradient(circle_at_18%_18%,rgba(255,255,255,0.28),transparent_28%),radial-gradient(circle_at_82%_24%,rgba(191,219,254,0.24),transparent_30%),radial-gradient(circle_at_50%_78%,rgba(244,114,182,0.2),transparent_32%),radial-gradient(circle_at_30%_65%,rgba(196,181,253,0.22),transparent_34%)] blur-3xl opacity-100" />
+                <div className="absolute inset-0 text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-primary-200/20 blur-md pointer-events-none select-none translate-y-2 scale-[1.02]">
+                  {panelTitle}
+                </div>
+                <motion.h1
+                  className="relative text-3xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold leading-[1.03] text-transparent bg-clip-text [text-shadow:0_0_30px_rgba(255,255,255,0.16)]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(140deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.98) 10%, rgba(224,242,254,0.96) 24%, rgba(191,219,254,0.94) 42%, rgba(196,181,253,0.94) 60%, rgba(244,114,182,0.92) 78%, rgba(255,255,255,0.98) 100%)",
+                    backgroundSize: "240% 240%",
+                    WebkitTextStroke: "1px rgba(255,255,255,0.18)",
+                  }}
+                  animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  {panelTitle}
+                </motion.h1>
+                <motion.div
+                  className="absolute inset-y-0 -left-[12%] w-[36%] bg-[linear-gradient(110deg,transparent_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.55)_48%,rgba(255,255,255,0.08)_76%,transparent_100%)] blur-[1px] pointer-events-none"
+                  animate={{ x: ["0%", "320%"] }}
+                  transition={{
+                    duration: 3.2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    repeatDelay: 1.2,
+                  }}
+                />
+              </motion.div>
               <motion.p
                 className="text-white/70 text-base sm:text-lg leading-relaxed mt-4 max-w-lg"
                 initial={{ opacity: 0, y: 18 }}
