@@ -239,44 +239,6 @@ export default function AuthShowcase({
               >
                 {panelDescription}
               </motion.p>
-
-              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 lg:mt-8"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22, duration: 0.55 }}
-              >
-                {[
-                  {
-                    icon: Zap,
-                    label: "Instant Keys",
-                    meta: "Delivered in seconds",
-                  },
-                  {
-                    icon: Shield,
-                    label: "Protected",
-                    meta: "Encrypted checkout",
-                  },
-                  {
-                    icon: Sparkles,
-                    label: "Rewards",
-                    meta: "Points every order",
-                  },
-                ].map(({ icon: Icon, label, meta }) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl bg-white/8 backdrop-blur-xl border border-white/10 p-3.5 lg:p-4"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-white/12 flex items-center justify-center mb-2.5">
-                      <Icon className="w-4.5 h-4.5 text-white" />
-                    </div>
-                    <p className="text-sm font-bold text-white">{label}</p>
-                    <p className="text-[11px] text-white/55 mt-1 leading-relaxed">
-                      {meta}
-                    </p>
-                  </div>
-                ))}
-              </motion.div>
             </div>
 
             <motion.div

@@ -460,12 +460,12 @@ export default function StorePage() {
 
               {/* Current slide card */}
               <motion.div
-                className="hidden lg:flex flex-col items-end gap-4 flex-shrink-0 lg:translate-x-10 lg:translate-y-8 xl:translate-x-14 xl:translate-y-10"
+                className="hidden lg:flex flex-col items-end gap-3 flex-shrink-0 lg:ml-auto lg:self-end lg:translate-x-16 lg:translate-y-12 xl:translate-x-24 xl:translate-y-16"
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <div className="relative w-[320px] h-[195px] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl group">
+                <div className="relative w-[292px] h-[178px] xl:w-[304px] xl:h-[186px] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl group">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentSlide}
@@ -485,21 +485,21 @@ export default function StorePage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-3 left-3">
-                        <span className="px-2 py-0.5 rounded-md bg-primary-500/80 backdrop-blur-sm text-[10px] font-bold text-white uppercase">
+                        <span className="px-2 py-0.5 rounded-md bg-primary-500/80 backdrop-blur-sm text-[9px] font-bold text-white uppercase">
                           {heroSlides[currentSlide].tag}
                         </span>
                       </div>
                       <div className="absolute bottom-3 left-3 right-3">
-                        <p className="text-white font-bold text-sm">
+                        <p className="text-white font-bold text-[13px] xl:text-sm leading-tight">
                           {heroSlides[currentSlide].title}
                         </p>
-                        <p className="text-white/50 text-xs mt-0.5">
+                        <p className="text-white/50 text-[11px] mt-0.5 line-clamp-2">
                           {heroSlides[currentSlide].subtitle}
                         </p>
                       </div>
                     </motion.div>
                   </AnimatePresence>
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-sm text-[10px] font-bold text-white/70 border border-white/10">
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-sm text-[9px] font-bold text-white/70 border border-white/10">
                     {currentSlide + 1} / {heroSlides.length}
                   </div>
                   {/* Accent bar */}
@@ -511,9 +511,9 @@ export default function StorePage() {
                 </div>
 
                 {/* Mini stat cards */}
-                <div className="flex gap-3 mr-2 xl:mr-4 mt-1">
+                <div className="flex gap-3 mr-1 xl:mr-2 mt-2">
                   <motion.div
-                    className="px-4 py-2.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-center"
+                    className="px-3.5 py-2 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-center min-w-[88px]"
                     animate={{ y: [0, -5, 0] }}
                     transition={{
                       duration: 4,
@@ -521,7 +521,7 @@ export default function StorePage() {
                       ease: "easeInOut",
                     }}
                   >
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm font-bold text-white leading-none">
                       {products.length}+
                     </p>
                     <p className="text-[9px] text-white/40 uppercase tracking-wider">
@@ -529,7 +529,7 @@ export default function StorePage() {
                     </p>
                   </motion.div>
                   <motion.div
-                    className="px-4 py-2.5 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-center"
+                    className="px-3.5 py-2 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-center min-w-[104px]"
                     animate={{ y: [0, -5, 0] }}
                     transition={{
                       duration: 4,
@@ -538,7 +538,7 @@ export default function StorePage() {
                       delay: 1.5,
                     }}
                   >
-                    <p className="text-sm font-bold text-gradient">
+                    <p className="text-sm font-bold text-gradient leading-none">
                       {topDeals.length > 0
                         ? `${Math.max(...topDeals.map((d) => d.discountPercentage || 0))}%`
                         : "Hot"}
