@@ -71,9 +71,9 @@ type AuthSplitPageProps = {
   initialMode?: AuthMode;
 };
 
-const SLIDE_DURATION_MS = 200;
-const TOTAL_SWAP_MS = 400;
-const SWAP_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
+const SLIDE_DURATION_MS = 520;
+const TOTAL_SWAP_MS = 1040;
+const SWAP_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 const featureBadges = [
   ["Fast", "Checkout saved"],
@@ -819,7 +819,7 @@ export default function AuthSplitPage({
         }
 
         .form-content {
-          transition: opacity 200ms ease;
+          transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .auth-swap-shell.is-swapping .form-content {
@@ -828,7 +828,7 @@ export default function AuthSplitPage({
 
         .auth-swap-shell.is-swap-in .form-content {
           opacity: 1;
-          transition-delay: 200ms;
+          transition-delay: 35ms;
         }
 
         @media (max-width: 1023px) {
