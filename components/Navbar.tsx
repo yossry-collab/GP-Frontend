@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertCircle,
   Gamepad2,
   Store,
   ShoppingCart,
@@ -21,6 +22,7 @@ import {
   Award,
   Sparkles,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
@@ -43,6 +45,13 @@ export default function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [chatStatus, setChatStatus] = useState<
+    "idle" | "loading" | "ready" | "config-missing" | "requires-auth" | "error"
+  >("idle");
+  const [chatMessage, setChatMessage] = useState<{
+    type: "info" | "error";
+    text: string;
+  } | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = useCallback(async () => {
@@ -78,6 +87,57 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    let dismissTimeout: number | undefined;
+
+    const handleChatStatus = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        status:
+          | "idle"
+          | "loading"
+          | "ready"
+          | "config-missing"
+          | "requires-auth"
+          | "error";
+        message?: string;
+      }>;
+
+      const nextStatus = customEvent.detail?.status || "idle";
+      const message = customEvent.detail?.message;
+
+      setChatStatus(nextStatus);
+
+      if (dismissTimeout) {
+        window.clearTimeout(dismissTimeout);
+      }
+
+      if (message) {
+        setChatMessage({
+          type:
+            nextStatus === "error" || nextStatus === "config-missing"
+              ? "error"
+              : "info",
+          text: message,
+        });
+        dismissTimeout = window.setTimeout(() => setChatMessage(null), 4000);
+        return;
+      }
+
+      if (nextStatus === "ready" || nextStatus === "idle") {
+        setChatMessage(null);
+      }
+    };
+
+    window.addEventListener("gameplug:chat-status", handleChatStatus);
+
+    return () => {
+      if (dismissTimeout) {
+        window.clearTimeout(dismissTimeout);
+      }
+      window.removeEventListener("gameplug:chat-status", handleChatStatus);
+    };
   }, []);
 
   const handleMarkAllRead = async () => {
@@ -143,6 +203,8 @@ export default function Navbar() {
   };
 
   const handleOpenSupportChat = () => {
+    if (chatStatus === "loading") return;
+
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("gameplug:open-chat"));
     }
@@ -167,6 +229,26 @@ export default function Navbar() {
     <nav
       className={`sticky top-0 z-50 transition-all duration-300 ${isLanding ? "bg-black/20 backdrop-blur-md border-b border-white/[0.06]" : "glass"}`}
     >
+      <AnimatePresence>
+        {chatMessage && isAuthenticated && (
+          <motion.div
+            className={`border-b px-4 py-3 text-sm font-medium ${
+              chatMessage.type === "error"
+                ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-500/20"
+                : "bg-primary-50 text-primary-700 border-primary-100 dark:bg-primary-500/10 dark:text-primary-300 dark:border-primary-500/20"
+            }`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <div className="max-w-7xl mx-auto px-0 sm:px-2 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{chatMessage.text}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <div
@@ -352,9 +434,19 @@ export default function Navbar() {
                 onClick={handleOpenSupportChat}
                 className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all text-gray-600 dark:text-gray-300"
                 title="Open support chat"
+                disabled={chatStatus === "loading"}
               >
-                <MessageCircle className="w-4 h-4 text-primary-500" />
-                <span className="text-sm font-medium">Help</span>
+                {chatStatus === "loading" ? (
+                  <Loader2 className="w-4 h-4 text-primary-500 animate-spin" />
+                ) : (
+                  <MessageCircle className="w-4 h-4 text-primary-500" />
+                )}
+                <span className="text-sm font-medium">
+                  {chatStatus === "loading" ? "Opening..." : "Help"}
+                </span>
+                {chatStatus === "ready" && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                )}
               </button>
 
               {/* User avatar */}
@@ -466,9 +558,16 @@ export default function Navbar() {
                     setMobileOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all"
+                  disabled={chatStatus === "loading"}
                 >
-                  <MessageCircle className="w-4 h-4 text-primary-500" />
-                  Support Chat
+                  {chatStatus === "loading" ? (
+                    <Loader2 className="w-4 h-4 text-primary-500 animate-spin" />
+                  ) : (
+                    <MessageCircle className="w-4 h-4 text-primary-500" />
+                  )}
+                  {chatStatus === "loading"
+                    ? "Opening support..."
+                    : "Support Chat"}
                 </button>
               )}
 

@@ -222,10 +222,51 @@ export default function AuthSplitPage({
     }
 
     if (swapStage === "out") {
-      return currentSide === "left" ? "translateX(100%)" : "translateX(-100%)";
+      return currentSide === "left"
+        ? "translateX(100%) translateY(-10px) scale(1.015)"
+        : "translateX(-100%) translateY(-10px) scale(1.015)";
     }
 
     return "translateX(0) translateY(0)";
+  };
+
+  const getVisualContentTransform = () => {
+    if (isMobileLayout || swapStage === "idle") {
+      return "translateX(0) translateY(0) scale(1)";
+    }
+
+    const currentSide = getPanelSide("visual", isRegisterMode);
+
+    if (swapStage === "out") {
+      return currentSide === "left"
+        ? "translateX(-26px) translateY(6px) scale(1.01)"
+        : "translateX(26px) translateY(6px) scale(1.01)";
+    }
+
+    return "translateX(0) translateY(0) scale(1)";
+  };
+
+  const getVisualPanelEffects = () => {
+    if (swapStage === "idle") {
+      return {
+        boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
+        filter: "saturate(1) brightness(1)",
+      };
+    }
+
+    if (swapStage === "out") {
+      return {
+        boxShadow:
+          "0 34px 84px -42px rgba(7, 10, 24, 0.62), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 42px rgba(168, 85, 247, 0.18), 0 0 68px rgba(244, 114, 182, 0.12)",
+        filter: "saturate(1.04) brightness(1.03)",
+      };
+    }
+
+    return {
+      boxShadow:
+        "0 22px 52px -36px rgba(7, 10, 24, 0.48), 0 0 28px rgba(168, 85, 247, 0.12)",
+      filter: "saturate(1.02) brightness(1.015)",
+    };
   };
 
   const getFormPanelTransform = () => {
@@ -586,6 +627,7 @@ export default function AuthSplitPage({
             transform: getVisualPanelTransform(),
             transition: getPanelTransition(),
             zIndex: isSwapping ? 3 : 1,
+            ...getVisualPanelEffects(),
           }}
         >
           {authSlides.map((slide, index) => (
@@ -614,7 +656,10 @@ export default function AuthSplitPage({
           <div className="absolute inset-0 bg-gradient-to-br from-[#090910]/85 via-[#090910]/55 to-primary-900/35" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.22),transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.16),transparent_32%)]" />
 
-          <div className="relative h-full flex flex-col justify-between p-5 sm:p-7 lg:p-10 xl:p-12">
+          <div
+            className="relative h-full flex flex-col justify-between p-5 sm:p-7 lg:p-10 xl:p-12 auth-visual-content"
+            style={{ transform: getVisualContentTransform() }}
+          >
             <div className="flex items-center justify-between gap-4">
               <button
                 type="button"
@@ -816,6 +861,19 @@ export default function AuthSplitPage({
           width: 50%;
           min-width: 0;
           will-change: transform;
+        }
+
+        .auth-visual-content {
+          transition: transform ${SLIDE_DURATION_MS}ms ${SWAP_EASING};
+          will-change: transform;
+        }
+
+        .auth-visual-panel {
+          transition:
+            transform ${SLIDE_DURATION_MS}ms ${SWAP_EASING},
+            box-shadow ${SLIDE_DURATION_MS}ms ${SWAP_EASING},
+            filter ${SLIDE_DURATION_MS}ms ${SWAP_EASING};
+          will-change: transform, box-shadow, filter;
         }
 
         .form-content {

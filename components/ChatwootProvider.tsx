@@ -11,6 +11,14 @@ type ChatwootApi = {
   toggle?: (state?: string) => void;
 };
 
+type ChatwootStatus =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "config-missing"
+  | "requires-auth"
+  | "error";
+
 declare global {
   interface Window {
     chatwootSDK?: {
@@ -39,6 +47,16 @@ const getChatwootConfig = () => {
     baseUrl: WIDGET_BASE_URL,
     websiteToken: WEBSITE_TOKEN,
   };
+};
+
+const dispatchChatwootStatus = (status: ChatwootStatus, message?: string) => {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(
+    new CustomEvent("gameplug:chat-status", {
+      detail: { status, message },
+    }),
+  );
 };
 
 const removeChatwootArtifacts = () => {
@@ -137,16 +155,28 @@ export default function ChatwootProvider() {
     const syncChatwoot = async () => {
       if (isLoading) return;
 
-      if (!isAuthenticated || !user || !HAS_VALID_CHATWOOT_CONFIG) {
+      if (!isAuthenticated || !user) {
         if (window.$chatwoot) {
           window.$chatwoot.reset?.();
         }
         initializedUserRef.current = null;
         removeChatwootArtifacts();
+        dispatchChatwootStatus("idle");
+        return;
+      }
+
+      if (!HAS_VALID_CHATWOOT_CONFIG) {
+        initializedUserRef.current = null;
+        removeChatwootArtifacts();
+        dispatchChatwootStatus(
+          "config-missing",
+          "Support chat is not configured yet. Add a valid Chatwoot website token to enable it.",
+        );
         return;
       }
 
       try {
+        dispatchChatwootStatus("loading");
         const chatwoot = await loadChatwoot();
         if (!chatwoot || cancelled) return;
 
@@ -171,7 +201,13 @@ export default function ChatwootProvider() {
           });
           initializedUserRef.current = user._id;
         }
+
+        dispatchChatwootStatus("ready");
       } catch (error) {
+        dispatchChatwootStatus(
+          "error",
+          "Support chat could not be loaded right now. Please try again in a moment.",
+        );
         console.error("Chatwoot initialization failed:", error);
       }
     };
@@ -179,13 +215,39 @@ export default function ChatwootProvider() {
     syncChatwoot();
 
     const handleOpenChat = async () => {
-      if (!isAuthenticated || !user || !HAS_VALID_CHATWOOT_CONFIG) return;
+      if (!isAuthenticated || !user) {
+        dispatchChatwootStatus(
+          "requires-auth",
+          "Sign in to open support chat.",
+        );
+        return;
+      }
+
+      if (!HAS_VALID_CHATWOOT_CONFIG) {
+        dispatchChatwootStatus(
+          "config-missing",
+          "Support chat is not configured yet. Add a valid Chatwoot website token to enable it.",
+        );
+        return;
+      }
 
       try {
+        dispatchChatwootStatus("loading");
         const chatwoot = await loadChatwoot();
-        if (!chatwoot || cancelled) return;
+        if (!chatwoot || cancelled) {
+          dispatchChatwootStatus(
+            "error",
+            "Support chat could not be opened right now. Please try again.",
+          );
+          return;
+        }
         chatwoot.toggle?.("open");
+        dispatchChatwootStatus("ready");
       } catch (error) {
+        dispatchChatwootStatus(
+          "error",
+          "Support chat could not be opened right now. Please try again.",
+        );
         console.error("Chatwoot open failed:", error);
       }
     };
