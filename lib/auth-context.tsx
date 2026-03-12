@@ -27,7 +27,7 @@ interface AuthContextType {
     username: string,
     email: string,
     password: string,
-    phonenumber: string,
+    phonenumber?: string,
   ) => Promise<void>;
   refreshUserFromStorage: () => void;
   logout: () => void;
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
     email: string,
     password: string,
-    phonenumber: string,
+    phonenumber?: string,
   ): Promise<void> => {
     try {
       setIsLoading(true);

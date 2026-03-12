@@ -1,8 +1,7 @@
-'use client'
+"use client";
 
-import React from 'react'
-import LoginPage from '@/components/LoginPage'
+import AuthSplitPage from "@/components/AuthSplitPage";
 
 export default function Login() {
-    return <LoginPage />
+  return <AuthSplitPage initialMode="login" />;
 }

@@ -1,5 +1,7 @@
-import RegisterPage from '@/components/RegisterPage'
+"use client";
+
+import AuthSplitPage from "@/components/AuthSplitPage";
 
 export default function Register() {
-    return <RegisterPage />
+  return <AuthSplitPage initialMode="register" />;
 }

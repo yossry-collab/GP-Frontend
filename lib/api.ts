@@ -34,7 +34,7 @@ apiClient.interceptors.response.use(
 )
 
 export const authAPI = {
-  register: async (data: { username: string; email: string; password: string; phonenumber: string }) => {
+  register: async (data: { username: string; email: string; password: string; phonenumber?: string }) => {
     return apiClient.post('/api/users/register', data)
   },
 
