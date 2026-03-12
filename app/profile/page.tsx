@@ -30,12 +30,13 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ordersAPI } from "@/lib/api";
+import { ordersAPI, resolveMediaUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import FloatingOrb from "@/components/FloatingOrb";
 import LoadingScreen from "@/components/LoadingScreen";
 import Navbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import SafeImage from "@/components/SafeImage";
 
 interface OrderItem {
   productId:
@@ -58,7 +59,7 @@ interface Order {
 }
 
 export default function ProfilePage() {
-  const { user, updateProfile, isLoading } = useAuth();
+  const { user, updateProfile, uploadProfileImage, isLoading } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
@@ -67,10 +68,13 @@ export default function ProfilePage() {
   >("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.username || "",
@@ -89,6 +93,7 @@ export default function ProfilePage() {
   });
 
   const isAdmin = user?.role === "admin";
+  const avatarSrc = avatarPreview || resolveMediaUrl(user?.profileImage);
 
   useEffect(() => {
     if (user) {
@@ -99,6 +104,14 @@ export default function ProfilePage() {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -174,14 +187,35 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async () => {
+    const hasProfileChanges =
+      formData.username !== (user?.username || "") ||
+      formData.email !== (user?.email || "") ||
+      formData.phonenumber !== (user?.phonenumber || "");
+
+    if (!hasProfileChanges && !avatarFile) {
+      setProfileMsg({ type: "error", text: "No changes to save" });
+      return;
+    }
+
     try {
       setSaving(true);
       setProfileMsg(null);
-      await updateProfile({
-        username: formData.username,
-        email: formData.email,
-        phonenumber: formData.phonenumber,
-      });
+      if (hasProfileChanges) {
+        await updateProfile({
+          username: formData.username,
+          email: formData.email,
+          phonenumber: formData.phonenumber,
+        });
+      }
+      if (avatarFile) {
+        setUploadingAvatar(true);
+        await uploadProfileImage(avatarFile);
+        setAvatarFile(null);
+        if (avatarPreview) {
+          URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarPreview("");
+      }
       setProfileMsg({ type: "success", text: "Profile updated successfully!" });
       setIsEditing(false);
     } catch (err: any) {
@@ -191,7 +225,31 @@ export default function ProfilePage() {
       });
     } finally {
       setSaving(false);
+      setUploadingAvatar(false);
     }
+  };
+
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setProfileMsg({ type: "error", text: "Please choose a valid image file" });
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setProfileMsg({ type: "error", text: "Profile image must be 3MB or smaller" });
+      return;
+    }
+
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    setProfileMsg(null);
   };
 
   const handleChangePassword = async () => {
@@ -238,6 +296,11 @@ export default function ProfilePage() {
   const handleCancelEdit = () => {
     setIsEditing(false);
     setProfileMsg(null);
+    setAvatarFile(null);
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    setAvatarPreview("");
     setFormData({
       username: user?.username || "",
       email: user?.email || "",
@@ -339,8 +402,33 @@ export default function ProfilePage() {
 
             <div className="relative flex flex-col gap-8">
               <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[1.75rem] bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center text-4xl font-black text-white shadow-[0_20px_45px_-18px_rgba(139,92,246,0.55)] flex-shrink-0">
-                  {user?.username?.charAt(0).toUpperCase() || "U"}
+                <div className="flex flex-col items-start gap-3 flex-shrink-0">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[1.75rem] overflow-hidden bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center text-4xl font-black text-white shadow-[0_20px_45px_-18px_rgba(139,92,246,0.55)]">
+                    {avatarSrc ? (
+                      <SafeImage
+                        src={avatarSrc}
+                        alt={user?.username || "Profile picture"}
+                        className="w-full h-full object-cover"
+                        fallback={<span>{user?.username?.charAt(0).toUpperCase() || "U"}</span>}
+                      />
+                    ) : (
+                      user?.username?.charAt(0).toUpperCase() || "U"
+                    )}
+                  </div>
+                  <label className="relative inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/85 px-3 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-primary-300 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-200 dark:hover:border-primary-500/30 cursor-pointer">
+                    {uploadingAvatar ? (
+                      <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4 text-primary-500" />
+                    )}
+                    <span>{avatarFile ? "Image ready" : "Change photo"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={handleAvatarChange}
+                    />
+                  </label>
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -904,12 +992,12 @@ export default function ProfilePage() {
                           </motion.button>
                           <motion.button
                             onClick={handleSaveProfile}
-                            disabled={saving}
+                            disabled={saving || uploadingAvatar}
                             className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-accent-500 text-white rounded-xl text-sm font-bold shadow-glow-sm transition-all disabled:opacity-50"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           >
-                            {saving ? (
+                            {saving || uploadingAvatar ? (
                               <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             ) : (
                               <Save className="w-3.5 h-3.5" />

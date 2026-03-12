@@ -28,9 +28,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useRouter, usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import SafeImage from "./SafeImage";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { loyaltyAPI, notificationsAPI } from "@/lib/api";
+import { resolveMediaUrl } from "@/lib/api";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -454,8 +456,17 @@ export default function Navbar() {
                 onClick={() => router.push("/profile")}
                 className="hidden md:flex items-center gap-2.5 pl-3 pr-4 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all"
               >
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold text-white">
-                  {user?.username?.charAt(0).toUpperCase() || "U"}
+                <div className="w-7 h-7 rounded-lg overflow-hidden bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold text-white">
+                  {user?.profileImage ? (
+                    <SafeImage
+                      src={resolveMediaUrl(user.profileImage)}
+                      alt={user.username || "User avatar"}
+                      className="w-full h-full object-cover"
+                      fallback={<span>{user?.username?.charAt(0).toUpperCase() || "U"}</span>}
+                    />
+                  ) : (
+                    user?.username?.charAt(0).toUpperCase() || "U"
+                  )}
                 </div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
                   {user?.username}

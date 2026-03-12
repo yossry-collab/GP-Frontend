@@ -2,6 +2,12 @@ import axios from 'axios'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
 
+export const resolveMediaUrl = (assetPath?: string | null) => {
+  if (!assetPath) return ''
+  if (/^https?:\/\//i.test(assetPath)) return assetPath
+  return `${API_BASE_URL}${assetPath.startsWith('/') ? assetPath : `/${assetPath}`}`
+}
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -50,6 +56,13 @@ export const authAPI = {
 export const usersAPI = {
   updateProfile: async (data: { username?: string; email?: string; phonenumber?: string; currentPassword?: string; newPassword?: string }) => {
     return apiClient.put('/api/users/profile', data)
+  },
+  uploadProfileImage: async (file: File) => {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    return apiClient.post('/api/users/profile/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
   },
   getAll: async () => {
     return apiClient.get('/api/users/get')

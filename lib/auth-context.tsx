@@ -15,6 +15,7 @@ interface User {
   username: string;
   email: string;
   phonenumber?: string;
+  profileImage?: string;
   role: "user" | "admin";
 }
 
@@ -38,6 +39,7 @@ interface AuthContextType {
     currentPassword?: string;
     newPassword?: string;
   }) => Promise<void>;
+  uploadProfileImage: (file: File) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -134,6 +136,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const uploadProfileImage = async (file: File) => {
+    try {
+      const response = await usersAPI.uploadProfileImage(file);
+      const updatedUser = response.data.user;
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Profile image upload failed");
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -152,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshUserFromStorage,
         logout,
         updateProfile,
+        uploadProfileImage,
       }}
     >
       {children}
