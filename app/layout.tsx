@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ChatwootProvider from "@/components/ChatwootProvider";
+import SupportAssistant from "@/components/SupportAssistant";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { ThemeProvider } from "@/lib/theme-context";
@@ -22,6 +23,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <ChatwootProvider />
+            <SupportAssistant />
             <CartProvider>{children}</CartProvider>
           </AuthProvider>
         </ThemeProvider>

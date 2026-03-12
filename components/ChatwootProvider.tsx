@@ -59,6 +59,12 @@ const dispatchChatwootStatus = (status: ChatwootStatus, message?: string) => {
   );
 };
 
+const openSupportAssistant = () => {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(new Event("gameplug:open-support-assistant"));
+};
+
 const removeChatwootArtifacts = () => {
   if (typeof window === "undefined") return;
 
@@ -168,10 +174,7 @@ export default function ChatwootProvider() {
       if (!HAS_VALID_CHATWOOT_CONFIG) {
         initializedUserRef.current = null;
         removeChatwootArtifacts();
-        dispatchChatwootStatus(
-          "config-missing",
-          "Support chat is not configured yet. Add a valid Chatwoot website token to enable it.",
-        );
+        dispatchChatwootStatus("idle");
         return;
       }
 
@@ -224,10 +227,7 @@ export default function ChatwootProvider() {
       }
 
       if (!HAS_VALID_CHATWOOT_CONFIG) {
-        dispatchChatwootStatus(
-          "config-missing",
-          "Support chat is not configured yet. Add a valid Chatwoot website token to enable it.",
-        );
+        openSupportAssistant();
         return;
       }
 
