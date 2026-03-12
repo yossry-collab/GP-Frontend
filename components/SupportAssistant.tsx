@@ -17,17 +17,6 @@ import { useAuth } from "@/lib/auth-context";
 
 type SupportLocale = "en" | "fr";
 
-type SupportArticle = {
-  _id: string;
-  slug: string;
-  category: string;
-  tags: string[];
-  title: string;
-  question: string;
-  summary: string;
-  answer: string;
-};
-
 type SupportContext = {
   recentOrders: Array<{
     _id: string;
@@ -51,21 +40,35 @@ type Message = {
   text: string;
 };
 
+type AssistantReply = {
+  reply: string;
+  source: "rules" | "llm";
+  matchedArticles?: Array<{
+    slug: string;
+    title: string;
+    category: string;
+  }>;
+  needsEscalation?: boolean;
+  suggestedPrompts?: string[];
+};
+
 const copy = {
   en: {
     title: "GamePlug AI Support",
     subtitle: "Orders, payments, rewards, refunds, and account help.",
     intro:
       "I can answer store questions, explain order and payment status, help with rewards, and create a support ticket when a human follow-up is needed.",
-    inputPlaceholder: "Ask about your order, rewards, payments, or account...",
+    inputPlaceholder: "Ask about your order, rewards, payments, account, or just say hello...",
     send: "Send",
     loading: "Loading support context...",
+    thinking: "Thinking...",
     createTicket: "Escalate to support",
     creatingTicket: "Creating ticket...",
     ticketDone:
       "Support ticket created. A human agent can follow up from here.",
     signIn: "Sign in to use the support assistant.",
     quickPrompts: [
+      "Hello",
       "Where is my order?",
       "How does Flouci payment work?",
       "How do loyalty points work?",
@@ -73,7 +76,7 @@ const copy = {
     ],
     noQuestion: "Tell me what happened first so I can create a useful ticket.",
     fallback:
-      "I do not have a confident direct answer for that yet, but I can create a support ticket for a human review.",
+      "I could not generate a response right now. You can try again or create a support ticket.",
   },
   fr: {
     title: "Assistant IA GamePlug",
@@ -81,15 +84,17 @@ const copy = {
     intro:
       "Je peux repondre aux questions sur la boutique, expliquer les statuts de commande et de paiement, aider sur la fidelite et creer un ticket si un suivi humain est necessaire.",
     inputPlaceholder:
-      "Posez une question sur votre commande, vos points, le paiement ou votre compte...",
+      "Posez une question sur votre commande, vos points, le paiement, votre compte, ou dites bonjour...",
     send: "Envoyer",
     loading: "Chargement du contexte support...",
+    thinking: "Je reflechis...",
     createTicket: "Escalader au support",
     creatingTicket: "Creation du ticket...",
     ticketDone:
       "Le ticket support a ete cree. Un agent humain pourra prendre le relais.",
     signIn: "Connectez-vous pour utiliser l'assistant support.",
     quickPrompts: [
+      "Bonjour",
       "Ou est ma commande ?",
       "Comment fonctionne le paiement Flouci ?",
       "Comment marchent les points de fidelite ?",
@@ -98,18 +103,9 @@ const copy = {
     noQuestion:
       "Expliquez-moi d'abord le probleme pour que je cree un ticket utile.",
     fallback:
-      "Je n'ai pas encore de reponse totalement fiable pour ce cas, mais je peux creer un ticket pour une verification humaine.",
+      "Je n'ai pas pu generer de reponse pour le moment. Vous pouvez reessayer ou creer un ticket support.",
   },
 };
-
-const normalize = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
 
 const dispatchChatStatus = (status: string, message?: string) => {
   if (typeof window === "undefined") return;
@@ -121,22 +117,21 @@ const dispatchChatStatus = (status: string, message?: string) => {
   );
 };
 
-const createId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export default function SupportAssistant() {
   const { user, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locale, setLocale] = useState<SupportLocale>("en");
-  const [articles, setArticles] = useState<SupportArticle[]>([]);
-  const [supportContext, setSupportContext] = useState<SupportContext | null>(
-    null,
-  );
+  const [supportContext, setSupportContext] = useState<SupportContext | null>(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [ticketMessage, setTicketMessage] = useState<string | null>(null);
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+  const [lastAssistantReply, setLastAssistantReply] = useState("");
 
   const text = copy[locale];
 
@@ -158,10 +153,7 @@ export default function SupportAssistant() {
     window.addEventListener("gameplug:open-support-assistant", openAssistant);
 
     return () => {
-      window.removeEventListener(
-        "gameplug:open-support-assistant",
-        openAssistant,
-      );
+      window.removeEventListener("gameplug:open-support-assistant", openAssistant);
     };
   }, []);
 
@@ -178,42 +170,45 @@ export default function SupportAssistant() {
         setTicketMessage(null);
         dispatchChatStatus("loading");
 
-        const [knowledgeResponse, contextResponse] = await Promise.all([
-          supportAPI.getKnowledge({ locale }),
-          supportAPI.getContext(),
-        ]);
+        const contextResponse = await supportAPI.getContext();
 
         if (cancelled) return;
 
-        const fetchedArticles = knowledgeResponse.data.articles || [];
         const fetchedContext = contextResponse.data.context || null;
-
-        setArticles(fetchedArticles);
         setSupportContext(fetchedContext);
+        setSuggestedPrompts(text.quickPrompts);
+
+        const introMessage = `${text.intro}${
+          fetchedContext?.recentOrders?.length
+            ? ` ${locale === "fr" ? "Je vois" : "I can also see"} ${fetchedContext.recentOrders.length} ${locale === "fr" ? "commande(s) recente(s)" : "recent order(s)"} ${locale === "fr" ? "et" : "and"} ${fetchedContext.openTickets} ${locale === "fr" ? "ticket(s) ouvert(s)." : "open ticket(s)."}`
+            : ""
+        }`;
+
         setMessages([
           {
             id: createId(),
             role: "assistant",
-            text: `${text.intro}${
-              fetchedContext?.recentOrders?.length
-                ? ` ${locale === "fr" ? "Je vois" : "I can also see"} ${fetchedContext.recentOrders.length} ${locale === "fr" ? "commande(s) recente(s)" : "recent order(s)"} ${locale === "fr" ? "et" : "and"} ${fetchedContext.openTickets} ${locale === "fr" ? "ticket(s) ouvert(s)." : "open ticket(s)."}`
-                : ""
-            }`,
+            text: introMessage,
           },
         ]);
+        setLastAssistantReply(introMessage);
         dispatchChatStatus("ready");
       } catch (error) {
         if (cancelled) return;
+
+        const fallbackMessage =
+          locale === "fr"
+            ? "Le support n'a pas pu charger ses donnees pour le moment. Vous pouvez reessayer ou creer un ticket."
+            : "Support data could not be loaded right now. You can try again or create a support ticket.";
+
         setMessages([
           {
             id: createId(),
             role: "assistant",
-            text:
-              locale === "fr"
-                ? "Le support n'a pas pu charger ses donnees pour le moment. Vous pouvez reessayer ou creer un ticket."
-                : "Support data could not be loaded right now. You can try again or create a support ticket.",
+            text: fallbackMessage,
           },
         ]);
+        setLastAssistantReply(fallbackMessage);
         dispatchChatStatus(
           "error",
           locale === "fr"
@@ -232,110 +227,61 @@ export default function SupportAssistant() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, isOpen, locale, text.intro, user]);
+  }, [isAuthenticated, isOpen, locale, text.intro, text.quickPrompts, user]);
 
-  const getBestArticle = (question: string) => {
-    const normalizedQuestion = normalize(question);
-    const terms = normalizedQuestion
-      .split(" ")
-      .filter((term) => term.length > 2);
-
-    const scored = articles
-      .map((article) => {
-        const haystack = normalize(
-          [
-            article.title,
-            article.question,
-            article.summary,
-            article.answer,
-            ...(article.tags || []),
-            article.category,
-          ].join(" "),
-        );
-
-        const score = terms.reduce((total, term) => {
-          if (haystack.includes(term)) return total + 2;
-          return total;
-        }, 0);
-
-        return { article, score };
-      })
-      .sort((left, right) => right.score - left.score);
-
-    return scored[0]?.score > 0 ? scored[0] : null;
-  };
-
-  const buildAnswer = (question: string) => {
-    const normalizedQuestion = normalize(question);
-    const bestMatch = getBestArticle(question);
-    const mentionsOrder =
-      /(order|commande|payment|paiement|pending|failed|completed)/.test(
-        normalizedQuestion,
-      );
-    const mentionsLoyalty = /(loyalty|points|reward|fidelite|tier|niveau)/.test(
-      normalizedQuestion,
-    );
-    const needsEscalation =
-      /(refund|rembourse|key|cle|issue|problem|bug|failed|echec)/.test(
-        normalizedQuestion,
-      );
-
-    const parts: string[] = [];
-
-    if (bestMatch) {
-      parts.push(bestMatch.article.answer);
-    }
-
-    if (mentionsOrder && supportContext?.recentOrders?.length) {
-      const recentOrder = supportContext.recentOrders[0];
-      parts.push(
-        locale === "fr"
-          ? `Votre commande la plus recente est ${recentOrder._id.slice(-8).toUpperCase()} avec le statut ${recentOrder.status} et un statut de paiement ${recentOrder.paymentStatus}.`
-          : `Your most recent order is ${recentOrder._id.slice(-8).toUpperCase()} with status ${recentOrder.status} and payment status ${recentOrder.paymentStatus}.`,
-      );
-    }
-
-    if (mentionsLoyalty && supportContext?.loyalty) {
-      parts.push(
-        locale === "fr"
-          ? `Votre solde actuel est ${supportContext.loyalty.points} points et votre niveau est ${supportContext.loyalty.tier}.`
-          : `Your current balance is ${supportContext.loyalty.points} points and your tier is ${supportContext.loyalty.tier}.`,
-      );
-    }
-
-    if (!parts.length) {
-      parts.push(text.fallback);
-    }
-
-    if (needsEscalation) {
-      parts.push(
-        locale === "fr"
-          ? "Ce cas devrait etre transmis au support humain. Vous pouvez utiliser le bouton d'escalade ci-dessous et je joindrai le contexte utile."
-          : "This case should be escalated to human support. You can use the escalation button below and I will attach the useful context.",
-      );
-    }
-
-    return parts.join(" ");
-  };
-
-  const submitQuestion = () => {
+  const submitQuestion = async () => {
     const question = input.trim();
-    if (!question) return;
+    if (!question || isReplying) return;
 
     const userMessage: Message = {
       id: createId(),
       role: "user",
       text: question,
     };
-    const assistantMessage: Message = {
-      id: createId(),
-      role: "assistant",
-      text: buildAnswer(question),
-    };
 
-    setMessages((current) => [...current, userMessage, assistantMessage]);
+    const history = messages.slice(-6).map((message) => ({
+      role: message.role,
+      text: message.text,
+    }));
+
+    setMessages((current) => [...current, userMessage]);
     setInput("");
     setTicketMessage(null);
+
+    try {
+      setIsReplying(true);
+      const response = await supportAPI.askAssistant({
+        message: question,
+        locale,
+        history,
+      });
+
+      const payload: AssistantReply = response.data;
+      const assistantText = payload.reply || text.fallback;
+
+      setMessages((current) => [
+        ...current,
+        {
+          id: createId(),
+          role: "assistant",
+          text: assistantText,
+        },
+      ]);
+      setLastAssistantReply(assistantText);
+      setSuggestedPrompts(payload.suggestedPrompts || text.quickPrompts);
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        {
+          id: createId(),
+          role: "assistant",
+          text: text.fallback,
+        },
+      ]);
+      setLastAssistantReply(text.fallback);
+    } finally {
+      setIsReplying(false);
+    }
   };
 
   const handleCreateTicket = async () => {
@@ -346,14 +292,13 @@ export default function SupportAssistant() {
 
     try {
       setIsSubmitting(true);
-      const summary = buildAnswer(lastUserMessage.text);
       await supportAPI.createTicket({
         subject: lastUserMessage.text.slice(0, 72),
         message: lastUserMessage.text,
         language: locale,
         source: "web",
-        aiSummary: summary,
-        summary,
+        aiSummary: lastAssistantReply,
+        summary: lastAssistantReply || lastUserMessage.text,
       });
       setTicketMessage(text.ticketDone);
     } catch (error) {
@@ -395,6 +340,13 @@ export default function SupportAssistant() {
                   </div>
                   <h3 className="text-xl font-bold mt-3">{text.title}</h3>
                   <p className="text-sm text-white/75 mt-1">{text.subtitle}</p>
+                  {supportContext && (
+                    <p className="text-xs text-white/70 mt-3">
+                      {locale === "fr"
+                        ? `${supportContext.loyalty.points} points, ${supportContext.openTickets} ticket(s) ouvert(s)`
+                        : `${supportContext.loyalty.points} points, ${supportContext.openTickets} open ticket(s)`}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -417,7 +369,7 @@ export default function SupportAssistant() {
               <>
                 <div className="px-5 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.03]">
                   <div className="flex flex-wrap gap-2">
-                    {text.quickPrompts.map((prompt) => (
+                    {suggestedPrompts.map((prompt) => (
                       <button
                         key={prompt}
                         type="button"
@@ -437,32 +389,49 @@ export default function SupportAssistant() {
                       {text.loading}
                     </div>
                   ) : (
-                    messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"}`}
-                      >
+                    <>
+                      {messages.map((message) => (
                         <div
-                          className={`max-w-[88%] rounded-2xl px-4 py-3 shadow-[0_0_2px_0_rgba(145,158,171,0.2),0_12px_24px_-4px_rgba(145,158,171,0.12)] dark:shadow-none border text-sm leading-relaxed ${
-                            message.role === "assistant"
-                              ? "bg-white dark:bg-[#16161f] border-gray-200 dark:border-white/[0.06] text-gray-700 dark:text-gray-200"
-                              : "bg-gradient-to-r from-primary-600 to-accent-500 border-transparent text-white"
-                          }`}
+                          key={message.id}
+                          className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"}`}
                         >
-                          <div className="flex items-center gap-2 mb-2 text-[11px] font-bold uppercase tracking-[0.22em] opacity-75">
-                            {message.role === "assistant" ? (
-                              <Bot className="w-3.5 h-3.5" />
-                            ) : (
-                              <User className="w-3.5 h-3.5" />
-                            )}
-                            {message.role === "assistant"
-                              ? text.title
-                              : user?.username || "You"}
+                          <div
+                            className={`max-w-[88%] rounded-2xl px-4 py-3 shadow-[0_0_2px_0_rgba(145,158,171,0.2),0_12px_24px_-4px_rgba(145,158,171,0.12)] dark:shadow-none border text-sm leading-relaxed ${
+                              message.role === "assistant"
+                                ? "bg-white dark:bg-[#16161f] border-gray-200 dark:border-white/[0.06] text-gray-700 dark:text-gray-200"
+                                : "bg-gradient-to-r from-primary-600 to-accent-500 border-transparent text-white"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-2 text-[11px] font-bold uppercase tracking-[0.22em] opacity-75">
+                              {message.role === "assistant" ? (
+                                <Bot className="w-3.5 h-3.5" />
+                              ) : (
+                                <User className="w-3.5 h-3.5" />
+                              )}
+                              {message.role === "assistant"
+                                ? text.title
+                                : user?.username || "You"}
+                            </div>
+                            <p>{message.text}</p>
                           </div>
-                          <p>{message.text}</p>
                         </div>
-                      </div>
-                    ))
+                      ))}
+
+                      {isReplying && (
+                        <div className="flex justify-start">
+                          <div className="max-w-[88%] rounded-2xl px-4 py-3 bg-white dark:bg-[#16161f] border border-gray-200 dark:border-white/[0.06] text-gray-700 dark:text-gray-200 text-sm shadow-[0_0_2px_0_rgba(145,158,171,0.2),0_12px_24px_-4px_rgba(145,158,171,0.12)] dark:shadow-none">
+                            <div className="flex items-center gap-2 mb-2 text-[11px] font-bold uppercase tracking-[0.22em] opacity-75">
+                              <Bot className="w-3.5 h-3.5" />
+                              {text.title}
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                              <Loader2 className="w-4 h-4 animate-spin text-primary-500" />
+                              {text.thinking}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
@@ -501,9 +470,7 @@ export default function SupportAssistant() {
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        setLocale((current) => (current === "en" ? "fr" : "en"))
-                      }
+                      onClick={() => setLocale((current) => (current === "en" ? "fr" : "en"))}
                       className="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-white/[0.08] text-sm font-semibold text-gray-600 dark:text-gray-300"
                     >
                       {locale === "en" ? "FR" : "EN"}
@@ -517,7 +484,7 @@ export default function SupportAssistant() {
                       onKeyDown={(event) => {
                         if (event.key === "Enter" && !event.shiftKey) {
                           event.preventDefault();
-                          submitQuestion();
+                          void submitQuestion();
                         }
                       }}
                       rows={3}
@@ -526,10 +493,15 @@ export default function SupportAssistant() {
                     />
                     <button
                       type="button"
-                      onClick={submitQuestion}
-                      className="shrink-0 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-500 text-white px-4 py-3 font-bold text-sm hover:shadow-lg hover:shadow-primary-500/25"
+                      onClick={() => void submitQuestion()}
+                      disabled={isReplying || !input.trim()}
+                      className="shrink-0 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary-600 to-accent-500 text-white px-4 py-3 font-bold text-sm hover:shadow-lg hover:shadow-primary-500/25 disabled:opacity-60"
                     >
-                      <Send className="w-4 h-4" />
+                      {isReplying ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
                       {text.send}
                     </button>
                   </div>

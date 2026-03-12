@@ -263,6 +263,13 @@ export const supportAPI = {
   getContext: async () => {
     return apiClient.get('/api/support/context')
   },
+  askAssistant: async (data: {
+    message: string
+    locale?: 'en' | 'fr'
+    history?: Array<{ role: 'assistant' | 'user'; text: string }>
+  }) => {
+    return apiClient.post('/api/support/assistant', data)
+  },
   createTicket: async (data: {
     subject: string
     message: string

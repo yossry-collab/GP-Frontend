@@ -87,6 +87,22 @@ The first support-agent integration is mounted globally in the frontend, but it 
 
 The frontend now includes the base Chatwoot widget integration and the backend now exposes support knowledge and ticket endpoints under `/api/support` for future AI workflows.
 
+## Built-In Support Assistant
+
+If Chatwoot is not configured, the Help action now opens the in-app support assistant.
+
+- It can answer greetings and basic support questions out of the box.
+- It becomes much smarter when the backend has AI env vars configured.
+- The backend env vars are:
+
+```bash
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+Without those backend env vars, the assistant still works, but it uses rule-based knowledge matching instead of real LLM-generated answers.
+
 ## To Connect with Backend
 
 Edit `components/LoginForm.tsx` in the `handleSubmit` function:
