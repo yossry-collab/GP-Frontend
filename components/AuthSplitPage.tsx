@@ -89,6 +89,9 @@ const getPanelSide = (panel: "visual" | "form", isRegisterMode: boolean) => {
   return isRegisterMode ? "left" : "right";
 };
 
+const getOppositeSide = (side: "left" | "right") =>
+  side === "left" ? "right" : "left";
+
 export default function AuthSplitPage({
   initialMode = "login",
 }: AuthSplitPageProps) {
@@ -200,21 +203,45 @@ export default function AuthSplitPage({
     }, TOTAL_SWAP_MS);
   };
 
-  const getPanelTransform = (panel: "visual" | "form") => {
-    const side = getPanelSide(panel, isRegisterMode);
-    const negativeAxis = isMobileLayout
-      ? "translateY(-100%)"
-      : "translateX(-100%)";
-    const positiveAxis = isMobileLayout
-      ? "translateY(100%)"
-      : "translateX(100%)";
+  const getVisualPanelTransform = () => {
+    const currentSide = getPanelSide("visual", isRegisterMode);
 
-    if (swapStage === "out") {
-      return side === "left" ? negativeAxis : positiveAxis;
+    if (isMobileLayout) {
+      if (swapStage === "out") {
+        return currentSide === "left"
+          ? "translateY(-100%)"
+          : "translateY(100%)";
+      }
+
+      if (swapStage === "enter-prep") {
+        const nextSide = getOppositeSide(currentSide);
+        return nextSide === "left" ? "translateY(100%)" : "translateY(-100%)";
+      }
+
+      return "translateX(0) translateY(0)";
     }
 
-    if (swapStage === "enter-prep") {
-      return side === "left" ? positiveAxis : negativeAxis;
+    if (swapStage === "out") {
+      return currentSide === "left" ? "translateX(100%)" : "translateX(-100%)";
+    }
+
+    return "translateX(0) translateY(0)";
+  };
+
+  const getFormPanelTransform = () => {
+    if (isMobileLayout) {
+      const currentSide = getPanelSide("form", isRegisterMode);
+
+      if (swapStage === "out") {
+        return currentSide === "left"
+          ? "translateY(-100%)"
+          : "translateY(100%)";
+      }
+
+      if (swapStage === "enter-prep") {
+        const nextSide = getOppositeSide(currentSide);
+        return nextSide === "left" ? "translateY(100%)" : "translateY(-100%)";
+      }
     }
 
     return "translateX(0) translateY(0)";
@@ -556,8 +583,9 @@ export default function AuthSplitPage({
           className="auth-panel auth-visual-panel relative min-h-[300px] lg:min-h-screen overflow-hidden border-b border-white/[0.08] lg:border-b-0 lg:border-r lg:border-white/[0.08]"
           style={{
             order: isRegisterMode ? 2 : 1,
-            transform: getPanelTransform("visual"),
+            transform: getVisualPanelTransform(),
             transition: getPanelTransition(),
+            zIndex: isSwapping ? 3 : 1,
           }}
         >
           {authSlides.map((slide, index) => (
@@ -724,8 +752,9 @@ export default function AuthSplitPage({
           className="auth-panel auth-form-panel flex items-center justify-center px-4 py-5 sm:px-6 lg:px-8 xl:px-10 lg:py-6 overflow-y-auto lg:overflow-hidden"
           style={{
             order: isRegisterMode ? 1 : 2,
-            transform: getPanelTransform("form"),
+            transform: getFormPanelTransform(),
             transition: getPanelTransition(),
+            zIndex: 1,
           }}
         >
           <div className="form-shell w-full max-w-md">
@@ -790,7 +819,7 @@ export default function AuthSplitPage({
         }
 
         .form-content {
-          transition: opacity 180ms ease;
+          transition: opacity 200ms ease;
         }
 
         .auth-swap-shell.is-swapping .form-content {
@@ -799,7 +828,7 @@ export default function AuthSplitPage({
 
         .auth-swap-shell.is-swap-in .form-content {
           opacity: 1;
-          transition-delay: 120ms;
+          transition-delay: 200ms;
         }
 
         @media (max-width: 1023px) {
