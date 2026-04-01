@@ -8,7 +8,7 @@ import {
   ReactNode,
   useCallback,
 } from "react";
-import { authAPI, usersAPI } from "@/lib/api";
+import { AUTH_LOGOUT_EVENT, authAPI, usersAPI } from "@/lib/api";
 
 interface User {
   _id: string;
@@ -68,6 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      setUser(null);
+      setIsLoading(false);
+    };
+
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
+
+    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
   }, []);
 
   const refreshUserFromStorage = useCallback(() => {
@@ -148,10 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
     authAPI.logout();
+    setUser(null);
   };
 
   return (

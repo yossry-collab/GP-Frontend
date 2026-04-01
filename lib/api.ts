@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL 
 
 export const resolveMediaUrl = (assetPath?: string | null) => {
   if (!assetPath) return ''
@@ -14,6 +14,26 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+export const AUTH_LOGOUT_EVENT = 'gameplug:auth-logout'
+
+const clearAuthStorage = () => {
+  if (typeof window === 'undefined') return
+
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+}
+
+export const forceLogout = (redirectToLogin = true) => {
+  if (typeof window === 'undefined') return
+
+  clearAuthStorage()
+  window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT))
+
+  if (redirectToLogin && window.location.pathname !== '/login') {
+    window.location.replace('/login')
+  }
+}
 
 // Add token to requests if available
 apiClient.interceptors.request.use((config) => {
@@ -30,10 +50,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token')
-        window.location.href = '/login'
-      }
+      forceLogout()
     }
     return Promise.reject(error)
   }
@@ -49,7 +66,7 @@ export const authAPI = {
   },
 
   logout: async () => {
-    localStorage.removeItem('token')
+    forceLogout(false)
   },
 }
 

@@ -3,6 +3,7 @@
 A modern gaming-themed login page and authentication UI for the GamePlug e-commerce platform.
 
 ## Tech Stack
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Utility-first styling
@@ -12,7 +13,8 @@ A modern gaming-themed login page and authentication UI for the GamePlug e-comme
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 
 ### Installation
@@ -30,8 +32,6 @@ npm build
 # Start production server
 npm start
 ```
-
-Open [http://localhost:3000](http://localhost:3000) to view in browser.
 
 ## Project Structure
 
@@ -54,22 +54,26 @@ frontend/
 ## Features
 
 ✅ **Gaming-Themed Design**
+
 - Dark immersive background with gradients
 - Glass morphism effect on login card
 - Animated decorative elements
 
 ✅ **Responsive Layout**
+
 - Two-column desktop layout (brand + login)
 - Mobile-friendly stacked layout
 - Fully responsive at all breakpoints
 
 ✅ **Smooth Animations**
+
 - Framer Motion entrance animations
 - Hover effects on inputs and buttons
 - Animated background elements
 - Smooth transitions (200-300ms)
 
 ✅ **User Interaction**
+
 - Email input with validation
 - Password input with show/hide toggle
 - Loading state on login button
@@ -78,6 +82,7 @@ frontend/
 - Social login buttons (Google, Discord, Steam)
 
 ✅ **Production Ready**
+
 - TypeScript for type safety
 - Accessible form labels
 - Focus states for keyboard navigation
@@ -97,17 +102,22 @@ NEXT_PUBLIC_APP_NAME=GamePlug
 The login form is ready to connect to your backend. Update the `handleSubmit` function in `LoginForm.tsx`:
 
 ```typescript
-const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/login`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password }),
-})
+const response = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  },
+);
 ```
 
 ## Customization
 
 ### Colors
+
 Edit `tailwind.config.js` to customize the gaming-themed colors:
+
 - `gaming-dark` - Main dark background
 - `gaming-accent` - Red accent (primary CTA)
 - `gaming-orange` - Orange accent
@@ -115,9 +125,11 @@ Edit `tailwind.config.js` to customize the gaming-themed colors:
 - `gaming-blue` - Blue accent
 
 ### Animations
+
 Modify animation durations in component files (default 200-300ms for smooth feel)
 
 ## Browser Support
+
 - Chrome/Edge: Latest 2 versions
 - Firefox: Latest 2 versions
 - Safari: Latest 2 versions
@@ -139,6 +151,7 @@ Modify animation durations in component files (default 200-300ms for smooth feel
 - Production bundle size: ~120KB (gzipped)
 
 ## License
+
 MIT
 
 ---
