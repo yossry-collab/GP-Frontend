@@ -42,9 +42,6 @@ import ProductCard from "@/components/ProductCard";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 
-// ═══════════════════════════════════════════════════════
-// ─── HERO SLIDES ─────────────────────────────────────
-// ═══════════════════════════════════════════════════════
 /* ─── Floating orb ─── */
 function FloatingOrb({
   className,
@@ -66,6 +63,7 @@ function FloatingOrb({
   );
 }
 
+/* ─── Hero Slides (STATIC VALUE) ─── */
 const heroSlides = [
   {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
@@ -175,6 +173,8 @@ export default function StorePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   // Auto-advance hero slideshow
   useEffect(() => {
@@ -212,6 +212,11 @@ export default function StorePage() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, activeSubcategory, activePlatform, search, sortBy]);
 
   // Reset sub-filters when category changes
   useEffect(() => {
@@ -259,7 +264,7 @@ export default function StorePage() {
 
   // Filter and sort
   const filtered = useMemo(() => {
-    let result = [...products];
+    let result = products.filter((p) => p.image && p.image.trim() !== "");
     if (activeCategory !== "all")
       result = result.filter((p) => p.category === activeCategory);
     if (activeSubcategory !== "all")
@@ -306,6 +311,12 @@ export default function StorePage() {
     sortBy,
   ]);
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, currentPage]);
+
   const activeFiltersCount = [
     activeSubcategory !== "all",
     activePlatform !== "all",
@@ -326,7 +337,7 @@ export default function StorePage() {
   // Top deals
   const topDeals = useMemo(() => {
     return products
-      .filter((p) => (p.discountPercentage || 0) > 0)
+      .filter((p) => (p.discountPercentage || 0) > 0 && p.image)
       .sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0))
       .slice(0, 6);
   }, [products]);
@@ -443,11 +454,11 @@ export default function StorePage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.35 }}
                 >
-                  {[
-                    { icon: Zap, label: "Instant Delivery" },
-                    { icon: Shield, label: "Secure Checkout" },
-                    { icon: Globe, label: "150+ Countries" },
-                  ].map(({ icon: Icon, label }) => (
+                    {[
+                      { icon: Zap, label: "Instant Delivery" },
+                      { icon: Shield, label: "Secure Checkout" },
+                      { icon: Globe, label: "150+ Countries" }, // STATIC VALUE
+                    ].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-primary-500/20 flex items-center justify-center">
                         <Icon className="w-3 h-3 text-primary-400" />
@@ -1043,23 +1054,80 @@ export default function StorePage() {
                 </motion.button>
               </motion.div>
             ) : (
-              <motion.div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {filtered.map((product, idx) => (
-                  <motion.div
-                    key={product._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(idx * 0.03, 0.3) }}
-                    viewport={{ once: true, margin: "-50px" }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
-                ))}
-              </motion.div>
+              <div className="space-y-10">
+                <motion.div
+                  key={currentPage + activeCategory + search}
+                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.04,
+                      }
+                    }
+                  }}
+                >
+                  {paginatedProducts.map((product) => (
+                    <motion.div
+                      key={product._id}
+                      variants={{
+                        hidden: { opacity: 0, y: 15, scale: 0.98 },
+                        visible: { opacity: 1, y: 0, scale: 1 }
+                      }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
+                    >
+                      <ProductCard product={product} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-6">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="p-2.5 rounded-xl bg-white dark:bg-[#16161f] border border-gray-200 dark:border-white/[0.06] text-gray-400 hover:text-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    
+                    <div className="flex items-center gap-1.5">
+                      {[...Array(totalPages)].map((_, i) => {
+                        const page = i + 1;
+                        // Only show current page, first, last, and neighbors if many pages
+                        if (totalPages > 7) {
+                           if (page !== 1 && page !== totalPages && Math.abs(page - currentPage) > 1) {
+                             if (Math.abs(page - currentPage) === 2) return <span key={page} className="text-gray-400 px-1">...</span>;
+                             return null;
+                           }
+                        }
+                        
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page ? "bg-primary-600 text-white shadow-glow-sm" : "bg-white dark:bg-[#16161f] border border-gray-200 dark:border-white/[0.06] text-gray-500 hover:text-gray-900 dark:hover:text-white"}`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-2.5 rounded-xl bg-white dark:bg-[#16161f] border border-gray-200 dark:border-white/[0.06] text-gray-400 hover:text-primary-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </section>

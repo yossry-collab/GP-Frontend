@@ -94,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const response = await authAPI.login({ email, password });
       const { token, user } = response.data;
+      console.log("Login Token:", token);
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         phonenumber,
       });
       const { token, user } = response.data;
+      console.log("Registration Token:", token);
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);

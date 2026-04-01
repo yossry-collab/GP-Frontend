@@ -36,7 +36,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import Navbar from "@/components/Navbar";
 import SafeImage from "@/components/SafeImage";
 
-/* ─── hero slides ─── */
+/* ─── Hero Slides (STATIC VALUE) ─── */
 const heroSlides = [
   {
     image: "/images/hero/Jason_and_Lucia_01_With_Logos_landscape.jpg",
@@ -162,10 +162,10 @@ export default function LandingPage() {
 
   //const userBodyLanguage = useCounter(10000000, 2200, statsVisible);
   //const userBody = useCounter(10000000, 2200, statsVisible);
-  const userCount = useCounter(10000000, 2200, statsVisible);
-  const productCount = useCounter(4750, 2000, statsVisible);
-  const countryCount = useCounter(152, 1800, statsVisible);
-  const satisfactionCount = useCounter(99, 2400, statsVisible);
+  const userCount = useCounter(10000000, 2200, statsVisible); // STATIC VALUE
+  const productCount = useCounter(4750, 2000, statsVisible); // STATIC VALUE
+  const countryCount = useCounter(152, 1800, statsVisible); // STATIC VALUE
+  const satisfactionCount = useCounter(99, 2400, statsVisible); // STATIC VALUE
 
   // Auto-advance hero slideshow
   useEffect(() => {
@@ -232,7 +232,7 @@ export default function LandingPage() {
       gradient: "from-amber-500 to-amber-700",
       glow: "rgba(245,158,11,0.25)",
     },
-  ];
+  ]; // STATIC VALUE
 
   const steps = [
     {
@@ -255,7 +255,7 @@ export default function LandingPage() {
       title: "Enjoy",
       desc: "Redeem your code and start playing immediately",
     },
-  ];
+  ]; // STATIC VALUE
 
   const features = [
     {
@@ -294,7 +294,7 @@ export default function LandingPage() {
       desc: "Full refund guarantee if a key doesn't work. No questions asked.",
       gradient: "from-red-400 to-rose-600",
     },
-  ];
+  ]; // STATIC VALUE
 
   const testimonials = [
     {
@@ -318,7 +318,7 @@ export default function LandingPage() {
       rating: 5,
       avatar: "M",
     },
-  ];
+  ]; // STATIC VALUE
 
   const platforms = [
     "Steam",
@@ -331,7 +331,7 @@ export default function LandingPage() {
     "Ubisoft",
     "EA Play",
     "GOG",
-  ];
+  ]; // STATIC VALUE
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0b0b11] overflow-hidden">
@@ -604,7 +604,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ STATS BAR ═══ */}
+      {/* Stats Bar */}
       <motion.section
         className="relative z-10 -mt-6"
         onViewportEnter={() => setStatsVisible(true)}
@@ -660,7 +660,7 @@ export default function LandingPage() {
         </div>
       </motion.section>
 
-      {/* ═══ CATEGORIES ═══ */}
+      {/* Categories */}
       <section className="py-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -717,7 +717,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ PRODUCTS ═══ */}
+      {/* Products */}
       <section className="py-20 relative z-10">
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary-500/5 rounded-full blur-3xl pointer-events-none" />

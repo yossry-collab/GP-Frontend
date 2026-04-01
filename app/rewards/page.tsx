@@ -157,7 +157,7 @@ const rarityColors: Record<
     glow: "shadow-amber-500/40",
     border: "border-amber-400 dark:border-amber-500",
   },
-};
+}; // STATIC CONFIG
 
 const tierConfig: Record<
   string,
@@ -183,7 +183,7 @@ const tierConfig: Record<
     bg: "bg-cyan-100 dark:bg-cyan-900/20",
     icon: <Sparkles className="w-4 h-4" />,
   },
-};
+}; // STATIC CONFIG
 
 const packThemeConfig: Record<
   string,
@@ -227,7 +227,7 @@ const packThemeConfig: Record<
     accent: "bg-cyan-500",
     icon: "💎",
   },
-};
+}; // STATIC CONFIG
 
 const tierOrder: Record<string, number> = {
   free: 0,
@@ -596,7 +596,7 @@ function OverviewTab({
       {/* How to earn */}
       <Card className="p-6" delay={0.4}>
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          How to Earn Points
+          How to Earn Points (STATIC VALUE)
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[

@@ -103,7 +103,7 @@ export const usersAPI = {
 
 export const productsAPI = {
   getAll: async (category?: string) => {
-    return apiClient.get('/api/products', { params: { category, limit: 100 } })
+    return apiClient.get('/api/products', { params: { category, limit: 5000 } })
   },
 
   getById: async (id: string) => {

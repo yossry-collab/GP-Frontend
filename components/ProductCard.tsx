@@ -19,7 +19,7 @@ interface ProductCardProps {
   product: Product;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+const ProductCard = React.memo(({ product }: ProductCardProps) => {
   const { addItem } = useCart();
   const router = useRouter();
   const [justAdded, setJustAdded] = useState(false);
@@ -63,7 +63,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <SafeImage
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-110 group-hover:blur-[2px] transition-all duration-700"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl opacity-20">
@@ -171,4 +171,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
     </motion.div>
   );
-}
+});
+
+ProductCard.displayName = "ProductCard";
+export default ProductCard;
