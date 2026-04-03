@@ -374,8 +374,12 @@ export default function AuthSplitPage({
       );
       setResetStep("verify");
     } catch (err: any) {
+      const message = err?.response?.data?.message;
+      const details = err?.response?.data?.error;
       setResetError(
-        err?.response?.data?.message || "Failed to send verification code.",
+        details
+          ? `${message || "Failed to send verification code."} (${details})`
+          : message || "Failed to send verification code.",
       );
     } finally {
       setResetLoading(false);
