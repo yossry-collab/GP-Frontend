@@ -13,9 +13,11 @@ import {
   Mail,
   Sparkles,
   User,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { authAPI } from "@/lib/api";
 import FloatingOrb from "@/components/FloatingOrb";
 
 const authSlides = [
@@ -119,6 +121,17 @@ export default function AuthSplitPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [resetStep, setResetStep] = useState<"request" | "verify">("request");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState("");
+  const [resetSuccess, setResetSuccess] = useState("");
+  const [resetForm, setResetForm] = useState({
+    email: "",
+    code: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const timeoutRefs = useRef<number[]>([]);
 
@@ -142,10 +155,10 @@ export default function AuthSplitPage({
   }, []);
 
   useEffect(() => {
+    const timeouts = timeoutRefs.current;
+
     return () => {
-      timeoutRefs.current.forEach((timeoutId) =>
-        window.clearTimeout(timeoutId),
-      );
+      timeouts.forEach((timeoutId) => window.clearTimeout(timeoutId));
     };
   }, []);
 
@@ -322,6 +335,106 @@ export default function AuthSplitPage({
     }
   };
 
+  const openForgotPasswordModal = () => {
+    setShowForgotPasswordModal(true);
+    setResetStep("request");
+    setResetLoading(false);
+    setResetError("");
+    setResetSuccess("");
+    setResetForm({
+      email: loginForm.email || "",
+      code: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
+  const closeForgotPasswordModal = () => {
+    if (resetLoading) return;
+    setShowForgotPasswordModal(false);
+  };
+
+  const handleRequestResetCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetSuccess("");
+
+    if (!resetForm.email.trim()) {
+      setResetError("Please enter your email.");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const response = await authAPI.forgotPassword({
+        email: resetForm.email.trim().toLowerCase(),
+      });
+      setResetSuccess(
+        response.data?.message || "Verification code sent to your email.",
+      );
+      setResetStep("verify");
+    } catch (err: any) {
+      setResetError(
+        err?.response?.data?.message || "Failed to send verification code.",
+      );
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetSuccess("");
+
+    const email = resetForm.email.trim().toLowerCase();
+    const code = resetForm.code.trim();
+    const newPassword = resetForm.newPassword;
+    const confirmPassword = resetForm.confirmPassword;
+
+    if (!email || !code || !newPassword || !confirmPassword) {
+      setResetError("All fields are required.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(code)) {
+      setResetError("Code must be exactly 6 digits.");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setResetError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setResetError("Passwords do not match.");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const response = await authAPI.resetPassword({
+        email,
+        code,
+        newPassword,
+      });
+
+      setResetSuccess(response.data?.message || "Password reset successfully.");
+      setLoginForm((prev) => ({ ...prev, email, password: "" }));
+
+      window.setTimeout(() => {
+        setShowForgotPasswordModal(false);
+      }, 1000);
+    } catch (err: any) {
+      setResetError(
+        err?.response?.data?.message || "Failed to reset password.",
+      );
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -429,6 +542,7 @@ export default function AuthSplitPage({
           </label>
           <button
             type="button"
+            onClick={openForgotPasswordModal}
             className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:text-accent-500 transition-colors"
           >
             Forgot password?
@@ -848,6 +962,232 @@ export default function AuthSplitPage({
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showForgotPasswordModal && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/55 backdrop-blur-sm flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="w-full max-w-md rounded-2xl border border-white/15 bg-white dark:bg-[#111320] shadow-2xl p-5 sm:p-6"
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.98 }}
+              transition={{ duration: 0.22 }}
+            >
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-primary-500">
+                    Account Recovery
+                  </p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                    Reset your password
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
+                    {resetStep === "request"
+                      ? "We will send a 6-digit verification code to your email."
+                      : "Enter the 6-digit code and your new password."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeForgotPasswordModal}
+                  className="rounded-lg p-1.5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
+                  aria-label="Close password reset dialog"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {resetError && (
+                  <motion.div
+                    className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    {resetError}
+                  </motion.div>
+                )}
+                {resetSuccess && (
+                  <motion.div
+                    className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    {resetSuccess}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {resetStep === "request" ? (
+                <form onSubmit={handleRequestResetCode} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="email"
+                        value={resetForm.email}
+                        onChange={(e) =>
+                          setResetForm((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
+                        className="input pl-11"
+                        placeholder="you@example.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="w-full btn-primary py-3.5 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {resetLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        Send 6-digit code <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="email"
+                        value={resetForm.email}
+                        onChange={(e) =>
+                          setResetForm((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
+                        className="input pl-11"
+                        placeholder="you@example.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      6-digit Code
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      value={resetForm.code}
+                      onChange={(e) =>
+                        setResetForm((prev) => ({
+                          ...prev,
+                          code: e.target.value.replace(/\D/g, "").slice(0, 6),
+                        }))
+                      }
+                      className="input"
+                      placeholder="123456"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="password"
+                        value={resetForm.newPassword}
+                        onChange={(e) =>
+                          setResetForm((prev) => ({
+                            ...prev,
+                            newPassword: e.target.value,
+                          }))
+                        }
+                        className="input pl-11"
+                        placeholder="At least 6 characters"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="password"
+                        value={resetForm.confirmPassword}
+                        onChange={(e) =>
+                          setResetForm((prev) => ({
+                            ...prev,
+                            confirmPassword: e.target.value,
+                          }))
+                        }
+                        className="input pl-11"
+                        placeholder="Repeat your new password"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      disabled={resetLoading}
+                      onClick={() => {
+                        setResetStep("request");
+                        setResetError("");
+                        setResetSuccess("");
+                      }}
+                      className="w-full py-3 rounded-xl border border-gray-300 dark:border-white/15 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                    >
+                      Resend code
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={resetLoading}
+                      className="w-full btn-primary py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resetLoading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          Update password <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style jsx>{`
         .auth-swap-shell {
