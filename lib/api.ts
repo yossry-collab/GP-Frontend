@@ -66,11 +66,11 @@ export const authAPI = {
   },
 
   forgotPassword: async (data: { email: string }) => {
-    return apiClient.post('/api/users/forgot-password', data)
+    return apiClient.post('/api/users/forgot-password', data, { timeout: 20000 })
   },
 
   resetPassword: async (data: { email: string; code: string; newPassword: string }) => {
-    return apiClient.post('/api/users/reset-password', data)
+    return apiClient.post('/api/users/reset-password', data, { timeout: 20000 })
   },
 
   logout: async () => {

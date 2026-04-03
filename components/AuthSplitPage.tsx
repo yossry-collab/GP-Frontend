@@ -374,6 +374,11 @@ export default function AuthSplitPage({
       );
       setResetStep("verify");
     } catch (err: any) {
+      if (err?.code === "ECONNABORTED") {
+        setResetError("Request timed out. Please try again in a few seconds.");
+        return;
+      }
+
       const message = err?.response?.data?.message;
       const details = err?.response?.data?.error;
       setResetError(
