@@ -68,6 +68,7 @@ const authSlides = [
 
 type AuthMode = "login" | "register";
 type SwapStage = "idle" | "out" | "enter-prep" | "in";
+type ResetStep = "request" | "code" | "password";
 
 type AuthSplitPageProps = {
   initialMode?: AuthMode;
@@ -122,16 +123,19 @@ export default function AuthSplitPage({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
-  const [resetStep, setResetStep] = useState<"request" | "verify">("request");
+  const [resetStep, setResetStep] = useState<ResetStep>("request");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState("");
   const [resetForm, setResetForm] = useState({
     email: "",
-    code: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [resetCodeDigits, setResetCodeDigits] = useState<string[]>(
+    Array(6).fill(""),
+  );
+  const resetCodeInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const timeoutRefs = useRef<number[]>([]);
 
@@ -343,10 +347,10 @@ export default function AuthSplitPage({
     setResetSuccess("");
     setResetForm({
       email: loginForm.email || "",
-      code: "",
       newPassword: "",
       confirmPassword: "",
     });
+    setResetCodeDigits(Array(6).fill(""));
   };
 
   const closeForgotPasswordModal = () => {
@@ -372,7 +376,11 @@ export default function AuthSplitPage({
       setResetSuccess(
         response.data?.message || "Verification code sent to your email.",
       );
-      setResetStep("verify");
+      setResetStep("code");
+      setResetCodeDigits(Array(6).fill(""));
+      window.setTimeout(() => {
+        resetCodeInputRefs.current[0]?.focus();
+      }, 0);
     } catch (err: any) {
       if (err?.code === "ECONNABORTED") {
         setResetError("Request timed out. Please try again in a few seconds.");
@@ -391,17 +399,113 @@ export default function AuthSplitPage({
     }
   };
 
+  const handleResetCodeChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+
+    setResetCodeDigits((prev) => {
+      const next = [...prev];
+      next[index] = digit;
+      return next;
+    });
+
+    if (digit && index < 5) {
+      resetCodeInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleResetCodeKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace") {
+      if (resetCodeDigits[index]) {
+        setResetCodeDigits((prev) => {
+          const next = [...prev];
+          next[index] = "";
+          return next;
+        });
+        return;
+      }
+
+      if (index > 0) {
+        resetCodeInputRefs.current[index - 1]?.focus();
+      }
+    }
+
+    if (e.key === "ArrowLeft" && index > 0) {
+      resetCodeInputRefs.current[index - 1]?.focus();
+    }
+
+    if (e.key === "ArrowRight" && index < 5) {
+      resetCodeInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleResetCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+    if (!pasted) return;
+
+    const next = Array(6)
+      .fill("")
+      .map((_, idx) => pasted[idx] || "");
+    setResetCodeDigits(next);
+
+    const focusIndex = Math.min(pasted.length, 6) - 1;
+    if (focusIndex >= 0) {
+      resetCodeInputRefs.current[focusIndex]?.focus();
+    }
+  };
+
+  const handleVerifyResetCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetSuccess("");
+
+    const email = resetForm.email.trim().toLowerCase();
+    const code = resetCodeDigits.join("");
+
+    if (!email) {
+      setResetError("Email is required.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(code)) {
+      setResetError("Please enter the full 6-digit code.");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const response = await authAPI.verifyResetCode({ email, code });
+      setResetSuccess(response.data?.message || "Code verified successfully.");
+      setResetStep("password");
+    } catch (err: any) {
+      if (err?.code === "ECONNABORTED") {
+        setResetError("Request timed out. Please try again in a few seconds.");
+        return;
+      }
+
+      setResetError(err?.response?.data?.message || "Failed to verify code.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setResetError("");
     setResetSuccess("");
 
     const email = resetForm.email.trim().toLowerCase();
-    const code = resetForm.code.trim();
+    const code = resetCodeDigits.join("");
     const newPassword = resetForm.newPassword;
     const confirmPassword = resetForm.confirmPassword;
 
-    if (!email || !code || !newPassword || !confirmPassword) {
+    if (!email || !newPassword || !confirmPassword) {
       setResetError("All fields are required.");
       return;
     }
@@ -998,7 +1102,9 @@ export default function AuthSplitPage({
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">
                     {resetStep === "request"
                       ? "We will send a 6-digit verification code to your email."
-                      : "Enter the 6-digit code and your new password."}
+                      : resetStep === "code"
+                        ? "Enter the verification code sent to your inbox."
+                        : "Code verified. Set your new password."}
                   </p>
                 </div>
                 <button
@@ -1074,6 +1180,78 @@ export default function AuthSplitPage({
                     )}
                   </button>
                 </form>
+              ) : resetStep === "code" ? (
+                <form onSubmit={handleVerifyResetCode} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="email"
+                        value={resetForm.email}
+                        className="input pl-11"
+                        readOnly
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                      Verification Code
+                    </label>
+                    <div className="grid grid-cols-6 gap-2">
+                      {resetCodeDigits.map((digit, index) => (
+                        <input
+                          key={index}
+                          ref={(el) => {
+                            resetCodeInputRefs.current[index] = el;
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) =>
+                            handleResetCodeChange(index, e.target.value)
+                          }
+                          onKeyDown={(e) => handleResetCodeKeyDown(index, e)}
+                          onPaste={handleResetCodePaste}
+                          className="h-12 rounded-xl border border-gray-300 dark:border-white/15 bg-white dark:bg-white/[0.03] text-center text-lg font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      disabled={resetLoading}
+                      onClick={() => {
+                        setResetStep("request");
+                        setResetError("");
+                        setResetSuccess("");
+                      }}
+                      className="w-full py-3 rounded-xl border border-gray-300 dark:border-white/15 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                    >
+                      Resend code
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={resetLoading}
+                      className="w-full btn-primary py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resetLoading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          Verify code <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
               ) : (
                 <form onSubmit={handleResetPassword} className="space-y-4">
                   <div>
@@ -1085,39 +1263,10 @@ export default function AuthSplitPage({
                       <input
                         type="email"
                         value={resetForm.email}
-                        onChange={(e) =>
-                          setResetForm((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
                         className="input pl-11"
-                        placeholder="you@example.com"
-                        required
+                        readOnly
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                      6-digit Code
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]{6}"
-                      maxLength={6}
-                      value={resetForm.code}
-                      onChange={(e) =>
-                        setResetForm((prev) => ({
-                          ...prev,
-                          code: e.target.value.replace(/\D/g, "").slice(0, 6),
-                        }))
-                      }
-                      className="input"
-                      placeholder="123456"
-                      required
-                    />
                   </div>
 
                   <div>
@@ -1169,13 +1318,13 @@ export default function AuthSplitPage({
                       type="button"
                       disabled={resetLoading}
                       onClick={() => {
-                        setResetStep("request");
+                        setResetStep("code");
                         setResetError("");
                         setResetSuccess("");
                       }}
                       className="w-full py-3 rounded-xl border border-gray-300 dark:border-white/15 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
                     >
-                      Resend code
+                      Back to code
                     </button>
                     <button
                       type="submit"

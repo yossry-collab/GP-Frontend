@@ -69,6 +69,10 @@ export const authAPI = {
     return apiClient.post('/api/users/forgot-password', data, { timeout: 20000 })
   },
 
+  verifyResetCode: async (data: { email: string; code: string }) => {
+    return apiClient.post('/api/users/verify-reset-code', data, { timeout: 20000 })
+  },
+
   resetPassword: async (data: { email: string; code: string; newPassword: string }) => {
     return apiClient.post('/api/users/reset-password', data, { timeout: 20000 })
   },
