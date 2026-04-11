@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ImgHTMLAttributes, useEffect, useState } from "react";
+import React, { ImgHTMLAttributes, useCallback, useEffect, useState } from "react";
 
 type SafeImageProps = ImgHTMLAttributes<HTMLImageElement> & {
   fallback?: React.ReactNode;
@@ -16,6 +16,9 @@ export default function SafeImage({
   ...props
 }: SafeImageProps) {
   const [failed, setFailed] = useState(false);
+  const handleError = useCallback(() => {
+    setFailed(true);
+  }, []);
 
   useEffect(() => {
     setFailed(false);
@@ -38,7 +41,7 @@ export default function SafeImage({
       src={src}
       alt={alt || "Product image"}
       className={className}
-      onError={() => setFailed(true)}
+      onError={handleError}
       {...props}
     />
   );

@@ -9,6 +9,7 @@ import {
   useCallback,
 } from "react";
 import { AUTH_LOGOUT_EVENT, authAPI, usersAPI } from "@/lib/api";
+import { normalizeEmail } from "@/lib/email-validation";
 
 interface User {
   _id: string;
@@ -78,7 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     window.addEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
 
-    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
+    return () =>
+      window.removeEventListener(AUTH_LOGOUT_EVENT, handleAuthLogout);
   }, []);
 
   const refreshUserFromStorage = useCallback(() => {
@@ -92,7 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await authAPI.login({ email, password });
+      const response = await authAPI.login({
+        email: normalizeEmail(email),
+        password,
+      });
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
@@ -115,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const response = await authAPI.register({
         username,
-        email,
+        email: normalizeEmail(email),
         password,
         phonenumber,
       });
@@ -154,7 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Profile image upload failed");
+      throw new Error(
+        error.response?.data?.message || "Profile image upload failed",
+      );
     }
   };
 

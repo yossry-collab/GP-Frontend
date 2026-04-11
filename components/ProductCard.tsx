@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
   ShoppingCart,
   Zap,
   Tag,
   Monitor,
-  Eye,
-  Heart,
   Check,
 } from "lucide-react";
 import { Product, useCart } from "@/lib/cart-context";
@@ -23,6 +21,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const router = useRouter();
   const [justAdded, setJustAdded] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
 
   const getCategoryStyle = (cat: string) => {
     switch (cat) {
@@ -42,7 +49,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     if (product.stock > 0 && !justAdded) {
       addItem(product, 1);
       setJustAdded(true);
-      setTimeout(() => setJustAdded(false), 1500);
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+      resetTimerRef.current = setTimeout(() => setJustAdded(false), 1500);
     }
   };
 

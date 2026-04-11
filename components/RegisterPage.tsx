@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import AuthShowcase from "@/components/AuthShowcase";
+import { validateTrustedEmail } from "@/lib/email-validation";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -41,6 +42,12 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
+    const emailCheck = validateTrustedEmail(formData.email);
+    if (!emailCheck.isValid) {
+      setError(emailCheck.message);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -54,7 +61,7 @@ export default function RegisterPage() {
     try {
       await register(
         formData.username,
-        formData.email,
+        emailCheck.normalizedEmail,
         formData.password,
         formData.phonenumber,
       );

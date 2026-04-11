@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { authAPI } from "@/lib/api";
+import { validateTrustedEmail } from "@/lib/email-validation";
 import FloatingOrb from "@/components/FloatingOrb";
 
 const authSlides = [
@@ -324,7 +325,7 @@ export default function AuthSplitPage({
     setLoading(true);
 
     try {
-      await login(loginForm.email, loginForm.password);
+      await login(loginForm.email.trim().toLowerCase(), loginForm.password);
       const storedRedirectUrl = sessionStorage.getItem("redirectAfterLogin");
       const redirectUrl =
         storedRedirectUrl === "/dashboard"
@@ -363,18 +364,24 @@ export default function AuthSplitPage({
     setResetError("");
     setResetSuccess("");
 
-    if (!resetForm.email.trim()) {
+    const emailCheck = validateTrustedEmail(resetForm.email);
+    if (!emailCheck.normalizedEmail) {
       setResetError("Please enter your email.");
+      return;
+    }
+
+    if (!emailCheck.isValid) {
+      setResetError(emailCheck.message);
       return;
     }
 
     setResetLoading(true);
     try {
       const response = await authAPI.forgotPassword({
-        email: resetForm.email.trim().toLowerCase(),
+        email: emailCheck.normalizedEmail,
       });
       setResetSuccess(
-        response.data?.message || "Verification code sent to your email.",
+        response.data?.message || "A reset code has been sent to your email.",
       );
       setResetStep("code");
       setResetCodeDigits(Array(6).fill(""));
@@ -388,12 +395,7 @@ export default function AuthSplitPage({
       }
 
       const message = err?.response?.data?.message;
-      const details = err?.response?.data?.error;
-      setResetError(
-        details
-          ? `${message || "Failed to send verification code."} (${details})`
-          : message || "Failed to send verification code.",
-      );
+      setResetError(message || "Failed to send verification code.");
     } finally {
       setResetLoading(false);
     }
@@ -553,6 +555,12 @@ export default function AuthSplitPage({
     setError("");
     setSuccess("");
 
+    const emailCheck = validateTrustedEmail(registerForm.email);
+    if (!emailCheck.isValid) {
+      setError(emailCheck.message);
+      return;
+    }
+
     if (registerForm.password !== registerForm.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -567,7 +575,7 @@ export default function AuthSplitPage({
     try {
       await register(
         registerForm.fullName,
-        registerForm.email,
+        emailCheck.normalizedEmail,
         registerForm.password,
       );
       setSuccess("Registration successful! Redirecting...");

@@ -17,20 +17,14 @@ import {
   X,
   SlidersHorizontal,
   ChevronDown,
-  Sparkles,
   Zap,
   Shield,
   Globe,
   ChevronLeft,
   ChevronRight,
-  Star,
-  TrendingUp,
   Flame,
   Crown,
   ArrowRight,
-  ShoppingCart,
-  Heart,
-  Eye,
   Trophy,
   Twitter,
   Github,
@@ -219,6 +213,13 @@ export default function StorePage() {
     setActivePlatform("all");
   }, [activeCategory]);
 
+  const categoryProducts = useMemo(() => {
+    if (activeCategory === "all") {
+      return products;
+    }
+    return products.filter((p) => p.category === activeCategory);
+  }, [products, activeCategory]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -236,32 +237,22 @@ export default function StorePage() {
 
   // Derive subcategories and platforms from current category
   const subcategories = useMemo(() => {
-    const pool =
-      activeCategory === "all"
-        ? products
-        : products.filter((p) => p.category === activeCategory);
     const subs = [
-      ...new Set(pool.map((p) => p.subcategory).filter(Boolean)),
+      ...new Set(categoryProducts.map((p) => p.subcategory).filter(Boolean)),
     ] as string[];
     return subs.sort();
-  }, [products, activeCategory]);
+  }, [categoryProducts]);
 
   const platforms = useMemo(() => {
-    const pool =
-      activeCategory === "all"
-        ? products
-        : products.filter((p) => p.category === activeCategory);
     const plats = [
-      ...new Set(pool.map((p) => p.platform).filter(Boolean)),
+      ...new Set(categoryProducts.map((p) => p.platform).filter(Boolean)),
     ] as string[];
     return plats.sort();
-  }, [products, activeCategory]);
+  }, [categoryProducts]);
 
   // Filter and sort
   const filtered = useMemo(() => {
-    let result = [...products];
-    if (activeCategory !== "all")
-      result = result.filter((p) => p.category === activeCategory);
+    let result = [...categoryProducts];
     if (activeSubcategory !== "all")
       result = result.filter((p) => p.subcategory === activeSubcategory);
     if (activePlatform !== "all")
@@ -298,8 +289,7 @@ export default function StorePage() {
     }
     return result;
   }, [
-    products,
-    activeCategory,
+    categoryProducts,
     activeSubcategory,
     activePlatform,
     search,
