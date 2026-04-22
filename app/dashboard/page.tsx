@@ -11,6 +11,7 @@ import {
   Plus,
   PencilSimple as Edit3,
   Trash as Trash2,
+  FloppyDisk as Save,
   X,
   Shield,
   ShieldSlash as ShieldOff,

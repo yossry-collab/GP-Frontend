@@ -19,7 +19,7 @@ import {
   Package,
   Phone,
   Receipt,
-  Save,
+  FloppyDisk as Save,
   Gear as Settings,
   Shield,
   ShoppingCart,
