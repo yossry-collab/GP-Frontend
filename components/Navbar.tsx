@@ -1,29 +1,28 @@
 "use client";
 
 import {
-  AlertCircle,
-  Gamepad2,
-  Store,
+  WarningCircle as AlertCircle,
+  Storefront as Store,
   ShoppingCart,
   User,
-  LogOut,
-  Home,
-  Menu,
+  SignOut as LogOut,
+  House as Home,
+  List as Menu,
   X,
   Gift,
   Coins,
   Bell,
   Check,
-  CheckCheck,
-  Trash2,
+  Checks as CheckCheck,
+  Trash as Trash2,
   Package,
   CreditCard,
   Star,
-  Award,
-  Sparkles,
-  MessageCircle,
-  Loader2,
-} from "lucide-react";
+  Medal as Award,
+  Sparkle as Sparkles,
+  ChatCircle as MessageCircle,
+  Spinner as Loader2,
+} from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useRouter, usePathname } from "next/navigation";
@@ -31,8 +30,16 @@ import ThemeToggle from "./ThemeToggle";
 import SafeImage from "./SafeImage";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { loyaltyAPI, notificationsAPI } from "@/lib/api";
-import { resolveMediaUrl } from "@/lib/api";
+import { loyaltyAPI, notificationsAPI, resolveMediaUrl } from "@/lib/api";
+
+interface NotificationItem {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -45,7 +52,7 @@ export default function Navbar() {
 
   // Notifications state
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [chatStatus, setChatStatus] = useState<
     "idle" | "loading" | "ready" | "config-missing" | "requires-auth" | "error"
@@ -64,7 +71,7 @@ export default function Navbar() {
         notificationsAPI.getAll(1, 20),
       ]);
       setUnreadCount(countRes.data.count);
-      setNotifications(listRes.data.notifications);
+      setNotifications(listRes.data.notifications || []);
     } catch {}
   }, [isAuthenticated]);
 
@@ -261,9 +268,6 @@ export default function Navbar() {
             )
           }
         >
-          <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm">
-            <Gamepad2 className="w-5 h-5 text-white" />
-          </div>
           <span
             className={`text-lg font-extrabold tracking-tight ${isLanding ? "text-white" : "text-gray-900 dark:text-white"}`}
           >
@@ -326,6 +330,7 @@ export default function Navbar() {
                       : "bg-gray-100 dark:bg-white/[0.06] border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-white/20"
                   }`}
                   title="Notifications"
+                  aria-label="Toggle notifications"
                 >
                   <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
@@ -356,6 +361,7 @@ export default function Navbar() {
                               onClick={handleMarkAllRead}
                               className="p-1.5 rounded-lg text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-500/10 transition-all"
                               title="Mark all as read"
+                              aria-label="Mark all notifications as read"
                             >
                               <CheckCheck className="w-4 h-4" />
                             </button>
@@ -365,6 +371,7 @@ export default function Navbar() {
                               onClick={handleClearAll}
                               className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                               title="Clear all"
+                              aria-label="Clear all notifications"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -406,6 +413,7 @@ export default function Navbar() {
                                       handleDeleteNotif(n._id);
                                     }}
                                     className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-300 hover:text-red-400 transition-all"
+                                    aria-label="Delete notification"
                                   >
                                     <X className="w-3 h-3" />
                                   </button>
@@ -455,6 +463,7 @@ export default function Navbar() {
               <button
                 onClick={() => router.push("/profile")}
                 className="hidden md:flex items-center gap-2.5 pl-3 pr-4 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-500/30 transition-all"
+                aria-label="Open profile"
               >
                 <div className="w-7 h-7 rounded-lg overflow-hidden bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-xs font-bold text-white">
                   {user?.profileImage ? (
@@ -462,7 +471,11 @@ export default function Navbar() {
                       src={resolveMediaUrl(user.profileImage)}
                       alt={user.username || "User avatar"}
                       className="w-full h-full object-cover"
-                      fallback={<span>{user?.username?.charAt(0).toUpperCase() || "U"}</span>}
+                      fallback={
+                        <span>
+                          {user?.username?.charAt(0).toUpperCase() || "U"}
+                        </span>
+                      }
                     />
                   ) : (
                     user?.username?.charAt(0).toUpperCase() || "U"
@@ -478,6 +491,7 @@ export default function Navbar() {
                 onClick={handleLogout}
                 className="hidden md:flex w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-300 dark:hover:border-red-500/30 transition-all"
                 title="Sign out"
+                aria-label="Sign out"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -504,6 +518,7 @@ export default function Navbar() {
             <button
               onClick={() => setNotifOpen(!notifOpen)}
               className="md:hidden relative w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400"
+              aria-label="Toggle notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
@@ -518,6 +533,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400"
+            aria-label="Toggle mobile menu"
           >
             {mobileOpen ? (
               <X className="w-4 h-4" />

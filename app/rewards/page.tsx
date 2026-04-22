@@ -5,27 +5,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
   Gift,
-  Zap,
+  Lightning as Zap,
   Trophy,
   Crown,
   Clock,
-  ChevronRight,
-  Sparkles,
+  CaretRight as ChevronRight,
+  Sparkle as Sparkles,
   Package,
   Target,
   Flame,
   Lock,
   Check,
-  ArrowRight,
-  History,
-  Award,
+  CopySimple,
+  ClockCounterClockwise as History,
+  Medal as Award,
   Coins,
   ShoppingBag,
   Ticket,
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-} from "lucide-react";
+  CaretDown as ChevronDown,
+  CaretUp as ChevronUp,
+  WarningCircle as AlertCircle,
+} from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth-context";
 import { loyaltyAPI } from "@/lib/api";
 import Navbar from "@/components/Navbar";
@@ -61,14 +61,32 @@ interface RewardItem {
 }
 interface QuestItem {
   _id: string;
+  questKey?: string | null;
   title: string;
   description: string;
   type: string;
   rewardPoints: number;
   icon: string;
+  sortOrder?: number;
   featureFlag: boolean;
+  category?: "onboarding" | "daily" | "weekly" | "career" | "seasonal";
   metadata: any;
-  userProgress: { completed: boolean; progress: number; completedAt?: string };
+  userProgress: {
+    completed: boolean;
+    progress: number;
+    completedAt?: string;
+    completionCount?: number;
+    completionLimit?: number;
+    lastCompletedAt?: string | null;
+    current?: number;
+    target?: number;
+    remaining?: number;
+    claimable?: boolean;
+    cooldownActive?: boolean;
+    nextEligibleAt?: string | null;
+    blockedReason?: string | null;
+    status?: "in_progress" | "claimable" | "cooldown" | "locked" | "completed";
+  };
 }
 interface PackItem {
   _id: string;
@@ -297,13 +315,6 @@ function RewardsContent() {
     const init = async () => {
       setLoading(true);
       await fetchBalance();
-      // Auto-claim signup bonus on first visit
-      try {
-        await loyaltyAPI.signupBonus();
-        await fetchBalance();
-      } catch {
-        /* already claimed */
-      }
       setLoading(false);
     };
     init();
@@ -446,7 +457,7 @@ function RewardsContent() {
         {tab === "quests" && (
           <QuestsTab
             key="quests"
-            balance={balance}
+            user={user}
             fetchBalance={fetchBalance}
             setMsg={setMsg}
           />
@@ -1215,44 +1226,113 @@ function PacksTab({
 // ─── QUESTS TAB ─────────────────────────────────────
 // ═══════════════════════════════════════════════════════
 function QuestsTab({
-  balance,
+  user,
   fetchBalance,
   setMsg,
 }: {
-  balance: Balance | null;
+  user: { _id?: string; username?: string } | null;
   fetchBalance: () => Promise<void>;
   setMsg: (m: any) => void;
 }) {
   const [quests, setQuests] = useState<QuestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<string | null>(null);
+  const [claimingAll, setClaimingAll] = useState(false);
+
+  const formatProgressValue = (item: QuestItem, value: number) => {
+    if (item.type === "monthly_spend") {
+      return `${Math.floor(value)} EUR`;
+    }
+    return Math.floor(value).toString();
+  };
+
+  const loadQuests = useCallback(async () => {
+    try {
+      const res = await loyaltyAPI.getQuests();
+      setQuests(res.data || []);
+    } catch {
+      setMsg({ type: "error", text: "Failed to load quests" });
+    } finally {
+      setLoading(false);
+    }
+  }, [setMsg]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await loyaltyAPI.getQuests();
-        setQuests(res.data);
-      } catch {
-        /* ignore */
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    loadQuests();
+  }, [loadQuests]);
 
   const complete = async (id: string) => {
     try {
       setCompleting(id);
       const res = await loyaltyAPI.completeQuest(id);
       setMsg({ type: "success", text: res.data.message });
-      await fetchBalance();
-      // Refresh quests
-      const qRes = await loyaltyAPI.getQuests();
-      setQuests(qRes.data);
+      await Promise.all([fetchBalance(), loadQuests()]);
     } catch (err: any) {
       setMsg({ type: "error", text: err.response?.data?.message || "Failed" });
     } finally {
       setCompleting(null);
+    }
+  };
+
+  const claimAllVisible = async () => {
+    const claimableNow = quests.filter(
+      (q) => q.userProgress.claimable && !q.userProgress.completed,
+    );
+
+    if (claimableNow.length === 0) {
+      setMsg({
+        type: "error",
+        text: "No claimable objectives in this section yet",
+      });
+      return;
+    }
+
+    try {
+      setClaimingAll(true);
+      let claimed = 0;
+      let earned = 0;
+
+      for (const quest of claimableNow) {
+        try {
+          const res = await loyaltyAPI.completeQuest(quest._id);
+          claimed += 1;
+          earned += Number(res.data?.earned || 0);
+        } catch {
+          // Keep claiming remaining quests even if one fails.
+        }
+      }
+
+      await Promise.all([fetchBalance(), loadQuests()]);
+      if (claimed > 0) {
+        setMsg({
+          type: "success",
+          text: `Claimed ${claimed} objective(s) for +${earned} points`,
+        });
+      } else {
+        setMsg({
+          type: "error",
+          text: "No objectives were claimed. Try again.",
+        });
+      }
+    } finally {
+      setClaimingAll(false);
+    }
+  };
+
+  const copyReferralLink = async () => {
+    if (!user?._id) {
+      setMsg({ type: "error", text: "Sign in to use referral link" });
+      return;
+    }
+
+    const base = typeof window !== "undefined" ? window.location.origin : "";
+    const referralLink = `${base}/register?ref=${encodeURIComponent(user._id)}`;
+
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setMsg({ type: "success", text: "Referral link copied" });
+    } catch {
+      setMsg({ type: "error", text: "Unable to copy referral link" });
     }
   };
 
@@ -1263,8 +1343,17 @@ function QuestsTab({
       </div>
     );
 
-  const active = quests.filter((q) => !q.userProgress.completed);
-  const completed = quests.filter((q) => q.userProgress.completed);
+  const orderedQuests = [...quests].sort(
+    (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0),
+  );
+
+  const claimableCount = orderedQuests.filter(
+    (q) => q.userProgress.claimable && !q.userProgress.completed,
+  ).length;
+  const achievedCount = orderedQuests.filter(
+    (q) =>
+      q.userProgress.completed || (q.userProgress.completionCount || 0) > 0,
+  ).length;
 
   return (
     <motion.div
@@ -1272,80 +1361,144 @@ function QuestsTab({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {active.length > 0 && (
-        <>
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-            Active Quests
-          </h3>
-          <div className="space-y-3 mb-8">
-            {active.map((q, i) => (
-              <Card
-                key={q._id}
-                delay={i * 0.06}
-                className="p-4 flex items-center gap-4"
-              >
-                <div className="text-2xl flex-shrink-0">{q.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
-                    {q.title}
-                  </h4>
-                  <p className="text-xs text-gray-500 truncate">
-                    {q.description}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="flex items-center gap-1 text-amber-600 font-bold text-sm">
-                    <Coins className="w-3.5 h-3.5" /> +{q.rewardPoints}
-                  </span>
-                  <button
-                    onClick={() => complete(q._id)}
-                    disabled={completing === q._id}
-                    className="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold hover:shadow-lg transition-all disabled:opacity-50"
-                  >
-                    {completing === q._id ? "..." : "Complete"}
-                  </button>
-                </div>
-              </Card>
-            ))}
+      <Card
+        className="p-5 mb-5 bg-[#11131c] dark:bg-[#0f1118] border border-white/[0.08]"
+        delay={0.05}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-xl font-black text-[#e6ef57] tracking-tight">
+              Quests
+            </h3>
+            <p className="text-xs text-gray-300 mt-1">
+              Achieved: {achievedCount}/{orderedQuests.length || 0}
+            </p>
           </div>
-        </>
-      )}
+          <button
+            onClick={claimAllVisible}
+            disabled={claimingAll || claimableCount === 0}
+            className="px-4 py-2 rounded-lg bg-[#252a3a] text-gray-200 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {claimingAll ? "Receiving..." : "Receive All"}
+          </button>
+        </div>
+      </Card>
 
-      {completed.length > 0 && (
-        <>
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-            Completed
-          </h3>
-          <div className="space-y-3">
-            {completed.map((q, i) => (
-              <Card
-                key={q._id}
-                delay={i * 0.04}
-                className="p-4 flex items-center gap-4 opacity-60"
-              >
-                <div className="text-2xl flex-shrink-0">{q.icon}</div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm line-through">
-                    {q.title}
-                  </h4>
-                  <p className="text-xs text-gray-500">{q.description}</p>
-                </div>
-                <div className="flex items-center gap-2 text-green-600">
-                  <Check className="w-4 h-4" />
-                  <span className="text-xs font-bold">Done</span>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
-
-      {quests.length === 0 && (
+      {orderedQuests.length === 0 && (
         <div className="text-center py-20 text-gray-400">
           <Target className="w-12 h-12 mx-auto mb-3 opacity-40" />
-          <p>No quests available yet. Check back soon!</p>
+          <p>No objectives available yet. Check back soon.</p>
         </div>
       )}
+
+      <div className="space-y-3">
+        {orderedQuests.map((q, i) => {
+          const progress = Math.max(
+            0,
+            Math.min(100, q.userProgress.progress || 0),
+          );
+          const current = Math.max(0, Number(q.userProgress.current || 0));
+          const target = Math.max(1, Number(q.userProgress.target || 1));
+          const buttonBusy = completing === q._id;
+          const isCompleted = !!q.userProgress.completed;
+          const isClaimable = !!q.userProgress.claimable && !isCompleted;
+          const nextEligibleAt = q.userProgress.nextEligibleAt
+            ? new Date(q.userProgress.nextEligibleAt).toLocaleString()
+            : null;
+          const referralLink =
+            q.type === "referral_invite" && user?._id
+              ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${encodeURIComponent(user._id)}`
+              : null;
+
+          return (
+            <Card
+              key={q._id}
+              delay={i * 0.04}
+              className="p-4 bg-[#1b1d27] dark:bg-[#1b1d27] border border-[#2d3244]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-fuchsia-500 flex items-center justify-center text-2xl flex-shrink-0">
+                  {q.icon || "🎯"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-extrabold text-white text-[1.05rem] leading-tight truncate">
+                    {q.title}
+                  </h4>
+                  <p className="text-xs text-gray-300 mt-1 truncate">
+                    {q.rewardPoints} Points
+                  </p>
+                  <div className="mt-2 h-1.5 rounded-full bg-[#353a4f] overflow-hidden">
+                    <div
+                      className="h-full bg-[#08a4ff] transition-all duration-500"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-300 mt-1">
+                    Achieved: {formatProgressValue(q, current)}/
+                    {formatProgressValue(q, target)}
+                  </p>
+
+                  {referralLink && (
+                    <button
+                      onClick={copyReferralLink}
+                      className="mt-2 inline-flex items-center gap-1 text-[11px] text-cyan-300 hover:text-cyan-200"
+                    >
+                      <CopySimple className="w-3.5 h-3.5" /> Copy invite link
+                    </button>
+                  )}
+
+                  {(q.userProgress.blockedReason || nextEligibleAt) &&
+                    !isCompleted && (
+                      <p className="text-[11px] text-gray-400 mt-1 truncate">
+                        {q.userProgress.blockedReason ||
+                          (nextEligibleAt
+                            ? `Next claim: ${nextEligibleAt}`
+                            : "")}
+                      </p>
+                    )}
+                </div>
+
+                <button
+                  onClick={() => complete(q._id)}
+                  disabled={!isClaimable || buttonBusy}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                    isClaimable
+                      ? "bg-[#2a3550] text-[#14a0ff]"
+                      : "bg-[#2a2f40] text-gray-500"
+                  }`}
+                  title={
+                    isCompleted ? "Claimed" : isClaimable ? "Claim" : "Locked"
+                  }
+                >
+                  {buttonBusy ? "..." : <ChevronRight className="w-5 h-5" />}
+                </button>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between text-[11px]">
+                <span className="text-gray-400 uppercase tracking-[0.16em]">
+                  {q.userProgress.completionCount || 0}/
+                  {q.userProgress.completionLimit || 1} claimed
+                </span>
+                <span
+                  className={`font-semibold ${
+                    isCompleted
+                      ? "text-green-400"
+                      : isClaimable
+                        ? "text-cyan-300"
+                        : "text-gray-400"
+                  }`}
+                >
+                  {isCompleted
+                    ? "Claimed"
+                    : isClaimable
+                      ? "Ready"
+                      : "In Progress"}
+                </span>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </motion.div>
   );
 }

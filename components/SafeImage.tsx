@@ -1,6 +1,13 @@
 "use client";
 
-import React, { ImgHTMLAttributes, useCallback, useEffect, useState } from "react";
+/* eslint-disable @next/next/no-img-element */
+
+import React, {
+  ImgHTMLAttributes,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 type SafeImageProps = ImgHTMLAttributes<HTMLImageElement> & {
   fallback?: React.ReactNode;

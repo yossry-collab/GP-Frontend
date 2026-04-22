@@ -3,19 +3,19 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertCircle,
+  WarningCircle as AlertCircle,
   ArrowRight,
-  CheckCircle2,
+  CheckCircle as CheckCircle2,
   Eye,
-  EyeOff,
-  Gamepad2,
+  EyeSlash as EyeOff,
+  GameController as Gamepad2,
   Lock,
-  Mail,
-  Sparkles,
+  Envelope as Mail,
+  Sparkle as Sparkles,
   User,
   X,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+} from "@phosphor-icons/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { authAPI } from "@/lib/api";
 import { validateTrustedEmail } from "@/lib/email-validation";
@@ -100,6 +100,7 @@ export default function AuthSplitPage({
   initialMode = "login",
 }: AuthSplitPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, register } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isRegisterMode, setIsRegisterMode] = useState(
@@ -139,6 +140,15 @@ export default function AuthSplitPage({
   const resetCodeInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const timeoutRefs = useRef<number[]>([]);
+  const referralCode = useMemo(() => {
+    const value = searchParams.get("ref");
+    return value ? value.trim() : "";
+  }, [searchParams]);
+  const isReferralCodeValid = useMemo(
+    () => /^[a-fA-F0-9]{24}$/.test(referralCode),
+    [referralCode],
+  );
+  const referralCodeForSubmit = isReferralCodeValid ? referralCode : undefined;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -577,6 +587,8 @@ export default function AuthSplitPage({
         registerForm.fullName,
         emailCheck.normalizedEmail,
         registerForm.password,
+        undefined,
+        referralCodeForSubmit,
       );
       setSuccess("Registration successful! Redirecting...");
       window.setTimeout(() => {
@@ -715,6 +727,32 @@ export default function AuthSplitPage({
 
   const renderRegisterForm = () => (
     <form onSubmit={handleRegisterSubmit} className="space-y-4">
+      {referralCode && isReferralCodeValid && (
+        <div className="px-4 py-3 rounded-xl text-sm font-medium flex items-start gap-2 bg-cyan-50 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/25">
+          <Sparkles className="w-4 h-4 mt-0.5" />
+          <div>
+            <p className="font-semibold">Referral Link Detected</p>
+            <p className="text-xs opacity-90 mt-1">
+              You are joining with a friend invite. Complete registration to
+              activate referral rewards.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {referralCode && !isReferralCodeValid && (
+        <div className="px-4 py-3 rounded-xl text-sm font-medium flex items-start gap-2 bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/25">
+          <AlertCircle className="w-4 h-4 mt-0.5" />
+          <div>
+            <p className="font-semibold">Invalid Invite Link</p>
+            <p className="text-xs opacity-90 mt-1">
+              This invite link looks invalid. You can still create your account
+              normally.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div>
         <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
           Full Name

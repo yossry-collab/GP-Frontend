@@ -3,15 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Bot,
-  Loader2,
-  MessageCircle,
-  Send,
-  Sparkles,
+  Robot as Bot,
+  Spinner as Loader2,
+  ChatCircle as MessageCircle,
+  PaperPlaneTilt as Send,
+  Sparkle as Sparkles,
   Ticket,
   User,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { supportAPI } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
@@ -58,7 +58,8 @@ const copy = {
     subtitle: "Orders, payments, rewards, refunds, and account help.",
     intro:
       "I can answer store questions, explain order and payment status, help with rewards, and create a support ticket when a human follow-up is needed.",
-    inputPlaceholder: "Ask about your order, rewards, payments, account, or just say hello...",
+    inputPlaceholder:
+      "Ask about your order, rewards, payments, account, or just say hello...",
     send: "Send",
     loading: "Loading support context...",
     thinking: "Thinking...",
@@ -117,7 +118,8 @@ const dispatchChatStatus = (status: string, message?: string) => {
   );
 };
 
-const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const createId = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export default function SupportAssistant() {
   const { user, isAuthenticated } = useAuth();
@@ -126,7 +128,9 @@ export default function SupportAssistant() {
   const [isReplying, setIsReplying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locale, setLocale] = useState<SupportLocale>("en");
-  const [supportContext, setSupportContext] = useState<SupportContext | null>(null);
+  const [supportContext, setSupportContext] = useState<SupportContext | null>(
+    null,
+  );
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [ticketMessage, setTicketMessage] = useState<string | null>(null);
@@ -153,7 +157,10 @@ export default function SupportAssistant() {
     window.addEventListener("gameplug:open-support-assistant", openAssistant);
 
     return () => {
-      window.removeEventListener("gameplug:open-support-assistant", openAssistant);
+      window.removeEventListener(
+        "gameplug:open-support-assistant",
+        openAssistant,
+      );
     };
   }, []);
 
@@ -351,6 +358,9 @@ export default function SupportAssistant() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
+                  aria-label={
+                    locale === "fr" ? "Fermer l'assistant" : "Close assistant"
+                  }
                   className="w-10 h-10 rounded-xl border border-white/15 bg-white/10 flex items-center justify-center text-white/85 hover:bg-white/15 transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -470,7 +480,14 @@ export default function SupportAssistant() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setLocale((current) => (current === "en" ? "fr" : "en"))}
+                      onClick={() =>
+                        setLocale((current) => (current === "en" ? "fr" : "en"))
+                      }
+                      aria-label={
+                        locale === "en"
+                          ? "Switch support language to French"
+                          : "Switch support language to English"
+                      }
                       className="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-white/[0.08] text-sm font-semibold text-gray-600 dark:text-gray-300"
                     >
                       {locale === "en" ? "FR" : "EN"}

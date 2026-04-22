@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { Sun, Moon } from 'lucide-react'
-import { useTheme } from '@/lib/theme-context'
-import { motion } from 'framer-motion'
+import { Sun, Moon } from "@phosphor-icons/react";
+import { useTheme } from "@/lib/theme-context";
+import { motion } from "framer-motion";
 
 export default function ThemeToggle() {
-  const { isDark, toggleTheme } = useTheme()
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <motion.button
@@ -17,10 +17,10 @@ export default function ThemeToggle() {
       <motion.div
         initial={false}
         animate={{ rotate: isDark ? 0 : 180, scale: 1 }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
       </motion.div>
     </motion.button>
-  )
+  );
 }

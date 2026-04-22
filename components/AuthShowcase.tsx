@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Shield, Sparkles, Zap } from "lucide-react";
+import {
+  GameController as Gamepad2,
+  Shield,
+  Sparkle as Sparkles,
+  Lightning as Zap,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import FloatingOrb from "@/components/FloatingOrb";
 

@@ -4,11 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ShoppingCart,
-  Zap,
+  Lightning as Zap,
   Tag,
   Monitor,
   Check,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Product, useCart } from "@/lib/cart-context";
 import { useRouter } from "next/navigation";
 import SafeImage from "@/components/SafeImage";

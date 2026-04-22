@@ -4,31 +4,31 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
-  BadgeCheck,
-  BarChart3,
+  SealCheck as BadgeCheck,
+  ChartBar as BarChart3,
   Check,
-  ChevronRight,
+  CaretRight as ChevronRight,
   Clock,
   CreditCard,
-  Edit3,
+  PencilSimple as Edit3,
   Eye,
-  EyeOff,
-  Gamepad2,
+  EyeSlash as EyeOff,
+  GameController as Gamepad2,
   Lock,
-  Mail,
+  Envelope as Mail,
   Package,
   Phone,
   Receipt,
   Save,
-  Settings,
+  Gear as Settings,
   Shield,
   ShoppingCart,
-  Sparkles,
+  Sparkle as Sparkles,
   Upload,
   User,
   Users,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { ordersAPI, resolveMediaUrl } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
@@ -234,12 +234,18 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setProfileMsg({ type: "error", text: "Please choose a valid image file" });
+      setProfileMsg({
+        type: "error",
+        text: "Please choose a valid image file",
+      });
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      setProfileMsg({ type: "error", text: "Profile image must be 3MB or smaller" });
+      setProfileMsg({
+        type: "error",
+        text: "Profile image must be 3MB or smaller",
+      });
       return;
     }
 
@@ -409,7 +415,11 @@ export default function ProfilePage() {
                         src={avatarSrc}
                         alt={user?.username || "Profile picture"}
                         className="w-full h-full object-cover"
-                        fallback={<span>{user?.username?.charAt(0).toUpperCase() || "U"}</span>}
+                        fallback={
+                          <span>
+                            {user?.username?.charAt(0).toUpperCase() || "U"}
+                          </span>
+                        }
                       />
                     ) : (
                       user?.username?.charAt(0).toUpperCase() || "U"

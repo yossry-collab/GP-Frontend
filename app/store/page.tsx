@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import React, {
   useState,
   useEffect,
@@ -9,27 +11,27 @@ import React, {
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
-  Gamepad2,
+  MagnifyingGlass as Search,
+  GameController as Gamepad2,
   Monitor,
   Gift,
-  LayoutGrid,
+  SquaresFour as LayoutGrid,
   X,
   SlidersHorizontal,
-  ChevronDown,
-  Zap,
+  CaretDown as ChevronDown,
+  Lightning as Zap,
   Shield,
   Globe,
-  ChevronLeft,
-  ChevronRight,
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
   Flame,
   Crown,
   ArrowRight,
   Trophy,
-  Twitter,
-  Github,
-  Youtube,
-} from "lucide-react";
+  TwitterLogo as Twitter,
+  GithubLogo as Github,
+  YoutubeLogo as Youtube,
+} from "@phosphor-icons/react";
 import { productsAPI } from "@/lib/api";
 import { Product } from "@/lib/cart-context";
 import ProductCard from "@/components/ProductCard";
@@ -288,13 +290,7 @@ export default function StorePage() {
         break;
     }
     return result;
-  }, [
-    categoryProducts,
-    activeSubcategory,
-    activePlatform,
-    search,
-    sortBy,
-  ]);
+  }, [categoryProducts, activeSubcategory, activePlatform, search, sortBy]);
 
   const activeFiltersCount = [
     activeSubcategory !== "all",

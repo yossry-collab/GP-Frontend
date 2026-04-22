@@ -7,21 +7,21 @@ import {
   ShoppingCart,
   Plus,
   Minus,
-  Zap,
+  Lightning as Zap,
   Shield,
   Package,
   Tag,
   Calendar,
-  Building2,
-  Gamepad2,
+  Buildings as Building2,
+  GameController as Gamepad2,
   Monitor,
   Star,
   ArrowRight,
-  CheckCircle2,
-  Sparkles,
+  CheckCircle as CheckCircle2,
+  Sparkle as Sparkles,
   Globe,
   Heart,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { Product, useCart } from "@/lib/cart-context";
 import { productsAPI } from "@/lib/api";
 import { useRouter } from "next/navigation";

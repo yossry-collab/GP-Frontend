@@ -4,15 +4,15 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
-  EyeOff,
-  Mail,
+  EyeSlash as EyeOff,
+  Envelope as Mail,
   Lock,
   User,
   Phone,
   ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-} from "lucide-react";
+  WarningCircle as AlertCircle,
+  CheckCircle as CheckCircle2,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import AuthShowcase from "@/components/AuthShowcase";

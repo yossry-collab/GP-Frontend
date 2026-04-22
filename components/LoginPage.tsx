@@ -2,7 +2,14 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeSlash as EyeOff,
+  Envelope as Mail,
+  Lock,
+  ArrowRight,
+  WarningCircle as AlertCircle,
+} from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import AuthShowcase from "@/components/AuthShowcase";

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { XCircle, ArrowLeft, ShoppingBag } from "lucide-react";
+import { XCircle, ArrowLeft, ShoppingBag } from "@phosphor-icons/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";

@@ -57,7 +57,7 @@ apiClient.interceptors.response.use(
 )
 
 export const authAPI = {
-  register: async (data: { username: string; email: string; password: string; phonenumber?: string }) => {
+  register: async (data: { username: string; email: string; password: string; phonenumber?: string; referralCode?: string }) => {
     return apiClient.post('/api/users/register', data)
   },
 
@@ -255,7 +255,6 @@ export const loyaltyAPI = {
   getBalance: () => apiClient.get('/api/loyalty/balance'),
   getHistory: (page = 1, limit = 20) => apiClient.get('/api/loyalty/history', { params: { page, limit } }),
   dailyLogin: () => apiClient.post('/api/loyalty/daily-login'),
-  earnFromPurchase: (orderId: string, amount: number) => apiClient.post('/api/loyalty/earn-purchase', { orderId, amount }),
   signupBonus: () => apiClient.post('/api/loyalty/signup-bonus'),
 
   // Rewards

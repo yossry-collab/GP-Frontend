@@ -12,7 +12,14 @@ import {
 import { useAuth } from "./auth-context";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, X, Check, ArrowRight, Zap, Package } from "lucide-react";
+import {
+  ShoppingCart,
+  X,
+  Check,
+  ArrowRight,
+  Lightning as Zap,
+  Package,
+} from "@phosphor-icons/react";
 import SafeImage from "@/components/SafeImage";
 
 export interface Product {

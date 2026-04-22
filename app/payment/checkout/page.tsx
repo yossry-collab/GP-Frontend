@@ -4,20 +4,20 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
-  CheckCircle2,
+  CheckCircle as CheckCircle2,
   CreditCard,
   FileText,
-  Loader2,
+  Spinner as Loader2,
   Lock,
-  Mail,
+  Envelope as Mail,
   MapPin,
   Phone,
   Shield,
-  Sparkles,
+  Sparkle as Sparkles,
   User,
   Wallet,
-  Zap,
-} from "lucide-react";
+  Lightning as Zap,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { ordersAPI, paymentAPI } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";

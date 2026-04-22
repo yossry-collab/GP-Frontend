@@ -30,6 +30,7 @@ interface AuthContextType {
     email: string,
     password: string,
     phonenumber?: string,
+    referralCode?: string,
   ) => Promise<void>;
   refreshUserFromStorage: () => void;
   logout: () => void;
@@ -115,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     phonenumber?: string,
+    referralCode?: string,
   ): Promise<void> => {
     try {
       setIsLoading(true);
@@ -123,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: normalizeEmail(email),
         password,
         phonenumber,
+        referralCode,
       });
       const { token, user } = response.data;
       localStorage.setItem("token", token);

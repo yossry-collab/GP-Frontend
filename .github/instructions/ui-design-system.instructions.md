@@ -65,7 +65,7 @@ Use the established Card pattern with Framer Motion entry animation:
 
 ## Icons
 
-- Use `lucide-react` for all icons
+- Use `@phosphor-icons/react` for all icons
 - Standard sizes: `w-4 h-4` (inline), `w-5 h-5` (badges), `w-7 h-7` (feature icons)
 - Icon containers: colored rounded div like `w-10 h-10 rounded-xl bg-gradient-to-br from-X to-Y flex items-center justify-center text-white`
 

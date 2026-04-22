@@ -3,36 +3,36 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  BarChart3,
+  ChartBar as BarChart3,
   Users,
   Package,
   Upload,
-  Search,
+  MagnifyingGlass as Search,
   Plus,
-  Edit3,
-  Trash2,
+  PencilSimple as Edit3,
+  Trash as Trash2,
   Save,
   X,
   Shield,
-  ShieldOff,
-  AlertCircle,
+  ShieldSlash as ShieldOff,
+  WarningCircle as AlertCircle,
   Check,
   FileText,
-  RefreshCw,
+  ArrowsClockwise as RefreshCw,
   Download,
-  DollarSign,
-  TrendingUp,
-  AlertTriangle,
-  Home,
-  ChevronLeft,
-  Menu,
+  CurrencyDollar as DollarSign,
+  TrendUp as TrendingUp,
+  Warning as AlertTriangle,
+  House as Home,
+  CaretLeft as ChevronLeft,
+  List as Menu,
   Gift,
   Coins,
   ShoppingBag,
   Clock,
   Eye,
-  ChevronDown,
-} from "lucide-react";
+  CaretDown as ChevronDown,
+} from "@phosphor-icons/react";
 import {
   AreaChart,
   Area,
@@ -968,8 +968,7 @@ function OverviewPage({ username }: { username: string }) {
                   <tr className="text-left text-[11px] text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-white/[0.02]">
                     <th className="px-6 py-3 font-semibold">#</th>
                     <th className="px-6 py-3 font-semibold">Product</th>
-                    <th className="px-6 py-3 font-semibold"
-                    >Orders</th>
+                    <th className="px-6 py-3 font-semibold">Orders</th>
                     <th className="px-6 py-3 font-semibold">Revenue</th>
                   </tr>
                 </thead>

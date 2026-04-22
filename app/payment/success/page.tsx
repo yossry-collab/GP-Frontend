@@ -2,9 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, XCircle, Loader2, ShoppingBag, ArrowLeft } from "lucide-react";
+import {
+  Check,
+  XCircle,
+  Spinner as Loader2,
+  ShoppingBag,
+  ArrowLeft,
+} from "@phosphor-icons/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { paymentAPI, loyaltyAPI } from "@/lib/api";
+import { paymentAPI } from "@/lib/api";
 import { useCart } from "@/lib/cart-context";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -39,16 +45,6 @@ export default function PaymentSuccessPage() {
           setOrder(verifiedOrder);
           // Clear local cart after successful payment
           clearCart();
-
-          // Award loyalty points (best effort)
-          try {
-            await loyaltyAPI.earnFromPurchase(
-              verifiedOrder._id,
-              verifiedOrder.totalPrice,
-            );
-          } catch {
-            /* non-blocking */
-          }
         } else {
           setState("failed");
           setErrorMsg("Payment was not completed.");

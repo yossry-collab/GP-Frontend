@@ -1,16 +1,18 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Gamepad2,
-  Search,
+  GameController as Gamepad2,
+  MagnifyingGlass as Search,
   ShoppingCart,
-  Zap,
+  Lightning as Zap,
   Shield,
   Key,
   Gift,
   Monitor,
-  ChevronRight,
+  CaretRight as ChevronRight,
   Star,
   ArrowRight,
   CreditCard,
@@ -21,12 +23,12 @@ import {
   Heart,
   Flame,
   Lock,
-  Headphones,
-  Quote,
-  Twitter,
-  Github,
-  Youtube,
-} from "lucide-react";
+  Headset as Headphones,
+  Quotes as Quote,
+  TwitterLogo as Twitter,
+  GithubLogo as Github,
+  YoutubeLogo as Youtube,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from "react";
