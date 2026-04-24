@@ -192,7 +192,7 @@ export default function ProfilePage() {
       formData.email !== (user?.email || "") ||
       formData.phonenumber !== (user?.phonenumber || "");
 
-    if (!hasProfileChanges && !avatarFile) {
+    if (!hasProfileChanges) {
       setProfileMsg({ type: "error", text: "No changes to save" });
       return;
     }
@@ -206,15 +206,6 @@ export default function ProfilePage() {
           email: formData.email,
           phonenumber: formData.phonenumber,
         });
-      }
-      if (avatarFile) {
-        setUploadingAvatar(true);
-        await uploadProfileImage(avatarFile);
-        setAvatarFile(null);
-        if (avatarPreview) {
-          URL.revokeObjectURL(avatarPreview);
-        }
-        setAvatarPreview("");
       }
       setProfileMsg({ type: "success", text: "Profile updated successfully!" });
       setIsEditing(false);
@@ -249,13 +240,23 @@ export default function ProfilePage() {
       return;
     }
 
-    if (avatarPreview) {
-      URL.revokeObjectURL(avatarPreview);
+    try {
+      setUploadingAvatar(true);
+      setProfileMsg(null);
+      await uploadProfileImage(file);
+      setProfileMsg({
+        type: "success",
+        text: "Profile photo updated successfully!",
+      });
+    } catch (err: any) {
+      setProfileMsg({
+        type: "error",
+        text: err.message || "Failed to upload profile photo",
+      });
+    } finally {
+      setUploadingAvatar(false);
+      event.target.value = "";
     }
-
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
-    setProfileMsg(null);
   };
 
   const handleChangePassword = async () => {
@@ -431,7 +432,7 @@ export default function ProfilePage() {
                     ) : (
                       <Upload className="w-4 h-4 text-primary-500" />
                     )}
-                    <span>{avatarFile ? "Image ready" : "Change photo"}</span>
+                    <span>{uploadingAvatar ? "Uploading..." : "Change photo"}</span>
                     <input
                       type="file"
                       accept="image/*"

@@ -139,9 +139,7 @@ export default function AuthShowcase({
                 onClick={() => router.push("/")}
                 className="inline-flex items-center gap-3"
               >
-                <div className="w-11 h-11 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm">
-                  <Gamepad2 className="w-5 h-5 text-white" />
-                </div>
+
                 <div className="text-left">
                   <div className="flex items-center gap-0.5 text-white text-lg sm:text-2xl font-extrabold tracking-[0.14em] sm:tracking-[0.18em]">
                     {"GAMEPLUG".split("").map((letter, index) => (

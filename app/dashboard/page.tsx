@@ -167,12 +167,13 @@ export default function DashboardPage() {
               className="flex items-center gap-2.5 cursor-pointer"
               onClick={() => router.push("/store")}
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center shadow-glow-sm flex-shrink-0">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              {sidebarOpen && (
+              {sidebarOpen ? (
                 <span className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
                   GAME<span className="text-gradient">PLUG</span>
+                </span>
+              ) : (
+                <span className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
+                  G<span className="text-gradient">P</span>
                 </span>
               )}
             </div>

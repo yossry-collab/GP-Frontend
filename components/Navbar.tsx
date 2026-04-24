@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   User,
   SignOut as LogOut,
-  House as Home,
+  ChartBar as Home,
   List as Menu,
   X,
   Gift,

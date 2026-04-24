@@ -332,30 +332,6 @@ export default function CartPage() {
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                  <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] p-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 text-white flex items-center justify-center mb-3">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                      Secure payment
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-white/65 leading-relaxed">
-                      Your checkout flow stays encrypted from start to finish.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] p-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center mb-3">
-                      <CheckCircle className="w-4 h-4" />
-                    </div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                      Fast fulfillment
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-white/65 leading-relaxed">
-                      Most items are digital and ready right after payment.
-                    </p>
-                  </div>
-                </div>
               </div>
 
               <div className="rounded-[1.75rem] border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#16161f] shadow-[0_0_2px_0_rgba(145,158,171,0.18),0_16px_30px_-12px_rgba(145,158,171,0.18)] dark:shadow-none p-6">
